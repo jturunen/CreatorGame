@@ -3,10 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - Enemy
-  - Destructible
-  - Sword
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -16,8 +13,8 @@ TagManager:
   - UI
   - 
   - 
-  - Characters
-  - Ground
+  - 
+  - 
   - 
   - 
   - 
@@ -43,19 +40,4 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
-    locked: 0
-  - name: Ground
-    uniqueID: 1075492511
-    locked: 0
-  - name: BehindCharacters
-    uniqueID: 141509709
-    locked: 0
-  - name: Characters
-    uniqueID: 4226276389
-    locked: 0
-  - name: Weapons
-    uniqueID: 2023707497
-    locked: 0
-  - name: Effects
-    uniqueID: 3902865427
     locked: 0
