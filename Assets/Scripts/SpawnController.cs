@@ -4,19 +4,19 @@ using UnityEngine;
 
 
 public class SpawnController : MonoBehaviour {
-
-    /*
+     
+     /*
      * Spawn enemies from list:
      * When button is pressed, monster is saved to list with position.
      * Then for example, when players enter room, go through list and spawn monsters then.
      */
 
-    public List<Vector2> positionList = null;
-
-    public List<GameObject> monsterList = null;
+    public List<GameObject> chosenMonstersList = null;
 
     public MonsterList allMonsters;
+    public LevelController levelController;
 
+    public List<Vector2> positionList;
     public List<GameObject> placeableEnemies;
 
     public int maxUnits = 0;
@@ -28,19 +28,10 @@ public class SpawnController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        positionList = new List<Vector2>();
-        monsterList = new List<GameObject>();
 
-        allMonsters = new MonsterList();
-
+        chosenMonstersList = new List<GameObject>();
         placeableEnemies = allMonsters.allMonsters;
-        
-        for (int i = 0; i <= maxUnits; i++)
-        {
-            placeableEnemies.Add(new GameObject());
-            positionList.Add(new Vector2(i, i));
-            //Debug.Log(positionList[i]);
-        }
+        positionList = levelController.spawnPoints;
 
     }
 
@@ -89,21 +80,17 @@ public class SpawnController : MonoBehaviour {
     private void SpawnToPoint(GameObject chosenEnemy)
     {
         nextSpawn = Time.time + spawnRate;
-
-        chosenEnemy.transform.position = positionList[currentUnit];
-        monsterList.Add(chosenEnemy);
+        chosenMonstersList.Add(chosenEnemy);
 
         currentUnit++;
     }
 
     private void SpawnUnitsToPoints()
     {
-        foreach (GameObject monster in monsterList)
+        for (int i = 0; i < chosenMonstersList.Count; i++)
         {
-            Instantiate(monster, monster.transform.position, Quaternion.identity);
+            Instantiate(chosenMonstersList[i], positionList[i], Quaternion.identity);
         }
         monsterSpawning = true;
     }
 }
-
-

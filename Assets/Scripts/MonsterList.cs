@@ -2,18 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MonsterList {
+public class MonsterList : MonoBehaviour {
 
     public List<GameObject> allMonsters { get; set; }
-                                       
+
     // Use this for initialization
-    public MonsterList() {
+    void Start()
+    {
         allMonsters = new List<GameObject>();
-        for (int i = 0; i <= 8; i++)
+
+        Object[] subListObjects = Resources.LoadAll("Prefabs", typeof(GameObject));
+
+        foreach (GameObject subListObject in subListObjects)
         {
-            allMonsters.Add(new GameObject());
+            GameObject lo = (GameObject)subListObject;
+            Debug.Log("Created " + lo);
+            allMonsters.Add(lo);
         }
     }
-	
 
 }
