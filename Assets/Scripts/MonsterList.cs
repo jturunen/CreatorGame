@@ -6,17 +6,16 @@ public class MonsterList : MonoBehaviour {
 
     public List<GameObject> allMonsters { get; set; }
 
-    // Use this for initialization
     void Start()
     {
         allMonsters = new List<GameObject>();
 
-        Object[] subListObjects = Resources.LoadAll("Prefabs", typeof(GameObject));
+        Object[] subListObjects = Resources.LoadAll("Minions", typeof(GameObject));
 
         foreach (GameObject subListObject in subListObjects)
         {
             GameObject lo = (GameObject)subListObject;
-            Debug.Log("Created " + lo);
+            //Debug.Log("Created " + lo);
             allMonsters.Add(lo);
         }
     }

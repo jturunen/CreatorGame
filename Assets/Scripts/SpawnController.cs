@@ -19,6 +19,8 @@ public class SpawnController : MonoBehaviour {
     public List<Vector2> positionList;
     public List<GameObject> placeableEnemies;
 
+    private GameObject spawnPointToFind;
+
     public int maxUnits = 0;
     public int currentUnit = 0;
     private bool monsterSpawning = false;
@@ -32,6 +34,7 @@ public class SpawnController : MonoBehaviour {
         chosenMonstersList = new List<GameObject>();
         placeableEnemies = allMonsters.allMonsters;
         positionList = levelController.spawnPoints;
+        changeSpawnPointColor(toUsed: false);
 
     }
 
@@ -41,33 +44,26 @@ public class SpawnController : MonoBehaviour {
         if (currentUnit <= maxUnits && Time.time > nextSpawn) { 
             if (Input.GetButton("Fire1"))
             {
-                Debug.Log("A button pressed");
-
                 SpawnToPoint(placeableEnemies[0]);
             }
             if (Input.GetButton("Fire2"))
             {
-                Debug.Log("B button pressed");
                 SpawnToPoint(placeableEnemies[1]);
             }
             if (Input.GetButton("Fire3"))
             {
-                Debug.Log("X button pressed");
                 SpawnToPoint(placeableEnemies[2]);
             }
             if (Input.GetButton("Fire4"))
             {
-                Debug.Log("Y button pressed");
                 SpawnToPoint(placeableEnemies[3]);
             }
             if (Input.GetButton("Left Bumber"))
             {
-                Debug.Log("Left bumber pressed");
                 SpawnToPoint(placeableEnemies[4]);
             }
             if (Input.GetButton("Right Bumber"))
             {
-                Debug.Log("Right bumber pressed");
                 SpawnToPoint(placeableEnemies[5]);
             }
         } else if (currentUnit == maxUnits && !monsterSpawning)
@@ -81,16 +77,36 @@ public class SpawnController : MonoBehaviour {
     {
         nextSpawn = Time.time + spawnRate;
         chosenMonstersList.Add(chosenEnemy);
-
+        changeSpawnPointColor(toUsed: true);
         currentUnit++;
+        if(currentUnit < maxUnits)
+        {
+            changeSpawnPointColor(toUsed: false);
+        }
     }
 
     private void SpawnUnitsToPoints()
     {
         for (int i = 0; i < chosenMonstersList.Count; i++)
         {
+            spawnPointToFind = GameObject.Find("SpawnPoint" + i);
+            Destroy(spawnPointToFind);
             Instantiate(chosenMonstersList[i], positionList[i], Quaternion.identity);
         }
         monsterSpawning = true;
+    }
+
+    private void changeSpawnPointColor(bool toUsed)
+    {
+        spawnPointToFind = GameObject.Find("SpawnPoint" + currentUnit);
+        SpriteRenderer spawnPointSprite = spawnPointToFind.GetComponent<SpriteRenderer>();
+        if (toUsed)
+        {
+            spawnPointSprite.color = new Color(0f, 0f, 0f, 1f);
+        } else
+        {
+            spawnPointSprite.color = new Color(1f, 0.5f, 0.5f, 1f);
+        }
+
     }
 }
