@@ -10,6 +10,9 @@ public class PlayerController : MonoBehaviour {
     public float hitPoints = 0.0f;
     public float damageDealt = 0.0f;
     public float victoryPoints = 0;
+
+    public float fireRate = 0.2F;
+    private float nextFire = 0.0F;
     //public Weapon usedWeapon = null; weapon that is used by the player
     float moveHorizontal;
     float moveVertical;
@@ -32,7 +35,6 @@ public class PlayerController : MonoBehaviour {
 
     private void Move()
     {
-
         Vector3 movement = new Vector3(moveHorizontal, moveVertical, 0.0f);
         GetComponent<Rigidbody2D>().velocity = movement * moveSpeed;
 
@@ -48,19 +50,52 @@ public class PlayerController : MonoBehaviour {
 
     private void Attack ()
     {
-        if (Input.GetButton("Fire1"))
+        if (Input.GetButton("Fire1") && Time.time > nextFire)
         {
-            if (moveVertical > 0)
+            nextFire = Time.time + fireRate;
+            if (moveHorizontal < 0 && moveVertical > 0)
             {
-                Debug.Log("Player Attacks Up");
-                anim.SetTrigger("Attack");
-            } else
-            {
-                Debug.Log("Player Attacks");
-                anim.SetTrigger("Attack");
+                anim.SetTrigger("AttackUpSide");
+                //Debug.Log("Player Attacks Up Side left");
             }
+            if (moveHorizontal == -1 || moveHorizontal == 1 && moveVertical == 0)
+            {
+                anim.SetTrigger("Attack");
+                //Debug.Log("Player Attacks left");
+            }
+            if (moveHorizontal < 0 && moveVertical < 0)
+            {
+                anim.SetTrigger("AttackDownSide");
+                //Debug.Log("Player Down Side left");
+            }
+            if (moveHorizontal == 0 && moveVertical == -1)
+            {
+                anim.SetTrigger("AttackDown");
+                //Debug.Log("Player Attacks Down");
+            }
+            if (moveHorizontal > 0 && moveVertical < 0)
+            {
+                anim.SetTrigger("AttackDownSide");
+                //Debug.Log("Player Down Side right");
+            }
+            /*if (moveHorizontal == 1 && moveVertical == 0)
+            {
+                anim.SetTrigger("Attack");
+                //Debug.Log("Player Attacks right");
+            }*/
+            if (moveHorizontal > 0 && moveVertical > 0)
+            {
+                anim.SetTrigger("AttackUpSide");
+                //Debug.Log("Player Attacks upside right");
+            }
+            if (moveHorizontal == 0 && moveVertical == 1)
+            {
+                anim.SetTrigger("AttackUp");
+                //Debug.Log("Player Attacks up");
 
+            }
         }
+
     }
 
     private void Defensive()
@@ -73,7 +108,6 @@ public class PlayerController : MonoBehaviour {
 
     private void Flip()
     {
-        Debug.Log("Flip");
         facingRight = !facingRight;
         Vector3 theScale = transform.localScale;
         theScale.x *= -1;
