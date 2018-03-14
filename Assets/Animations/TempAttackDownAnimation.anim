@@ -5,7 +5,7 @@ AnimationClip:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: TempAttackAnimation
+  m_Name: TempAttackDownAnimation
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -32,13 +32,13 @@ AnimationClip:
         outSlope: Infinity
         tangentMode: 103
       - serializedVersion: 2
-        time: 0.25
+        time: 0.41666666
         value: 0
         inSlope: Infinity
         outSlope: Infinity
         tangentMode: 103
       - serializedVersion: 2
-        time: 0.33333334
+        time: 0.5
         value: 0
         inSlope: Infinity
         outSlope: Infinity
@@ -47,7 +47,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_IsActive
-    path: PlayerAttackHitBox
+    path: PlayerAttackDownHitBox
     classID: 1
     script: {fileID: 0}
   m_PPtrCurves: []
@@ -59,7 +59,7 @@ AnimationClip:
   m_ClipBindingConstant:
     genericBindings:
     - serializedVersion: 2
-      path: 4204432806
+      path: 4111126068
       attribute: 2086281974
       script: {fileID: 0}
       typeID: 1
@@ -71,7 +71,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.33333334
+    m_StopTime: 0.5
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -103,13 +103,13 @@ AnimationClip:
         outSlope: Infinity
         tangentMode: 103
       - serializedVersion: 2
-        time: 0.25
+        time: 0.41666666
         value: 0
         inSlope: Infinity
         outSlope: Infinity
         tangentMode: 103
       - serializedVersion: 2
-        time: 0.33333334
+        time: 0.5
         value: 0
         inSlope: Infinity
         outSlope: Infinity
@@ -118,7 +118,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_IsActive
-    path: PlayerAttackHitBox
+    path: PlayerAttackDownHitBox
     classID: 1
     script: {fileID: 0}
   m_EulerEditorCurves: []
