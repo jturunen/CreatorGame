@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
 
     Animator anim;
+    PlayerWeapon playerWeapon;
 
     public float moveSpeed = 0.0f;
     public float hitPoints = 0.0f;
@@ -23,7 +24,8 @@ public class PlayerController : MonoBehaviour {
     // Use this for initialization
     void Start () {
         anim = GetComponent<Animator>();
-
+        playerWeapon = GetComponentInChildren(typeof(PlayerWeapon)) as PlayerWeapon;
+        attackSpeed = playerWeapon.attackSpeed;
     }
 
     // Update is called once per frame
