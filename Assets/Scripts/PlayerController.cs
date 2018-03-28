@@ -16,7 +16,6 @@ public class PlayerController : MonoBehaviour {
     public float attackSpeed = 0.2F;
     private float nextFire = 0.0F;
 
-    //public Weapon usedWeapon = null; weapon that is used by the player
     float moveHorizontal;
     float moveVertical;
     bool facingRight = true;

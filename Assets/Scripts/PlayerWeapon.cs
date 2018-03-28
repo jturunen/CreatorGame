@@ -10,6 +10,12 @@ public class PlayerWeapon : MonoBehaviour {
     public string usedWeaponName = "BaseballBat";
     // Use this for initialization
     void Start () {
+        /*GameObject weaponControllerGameObject = GameObject.Find("WeaponController");
+        weaponController = weaponControllerGameObject.GetComponent<WeaponController>();
+        Debug.Log(weaponControllerGameObject);
+        Debug.Log(weaponController);
+        Debug.Log(weaponController.allWeapons);*/
+
         GameObject result = weaponController.allWeapons.Find(weapon => weapon.name == usedWeaponName);
         WeaponStats stats = result.GetComponent<WeaponStats>();
         damage = stats.damage;

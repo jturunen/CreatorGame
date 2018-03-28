@@ -11,18 +11,26 @@ public class EnemyController : MonoBehaviour {
     bool facingRight = true;
     public bool isControlled = false;
 
+    public bool spawnChoise = false;
+
     Transform player;
 
     // Use this for initialization
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        if (!spawnChoise)
+        {
+            player = GameObject.FindGameObjectWithTag("Player").transform;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        Move();
+        if (!spawnChoise)
+        {
+            Move();
+        }
 
         //TODO: get real inputs
         /*if (Input.GetButton("Fire2"))

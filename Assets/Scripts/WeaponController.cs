@@ -15,7 +15,7 @@ public class WeaponController : MonoBehaviour
         foreach (GameObject subListObject in subListObjects)
         {
             GameObject lo = (GameObject)subListObject;
-            //Debug.Log("Found " + lo);
+            Debug.Log("Found " + lo);
             allWeapons.Add(lo);
         }
     }

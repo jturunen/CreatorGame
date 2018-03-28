@@ -13,7 +13,8 @@ public class SpawnController : MonoBehaviour {
 
     public List<GameObject> chosenMonstersList = null;
 
-    public MonsterList allMonsters;
+   // public MonsterList allMonsters;
+    public GameObject gameController;
     public LevelController levelController;
 
     public List<Vector2> positionList;
@@ -29,12 +30,18 @@ public class SpawnController : MonoBehaviour {
     private float nextSpawn = 0.0F;
 
     // Use this for initialization
-    void Start () {
+    void Start() {
 
         chosenMonstersList = new List<GameObject>();
-        placeableEnemies = allMonsters.allMonsters;
+        placeableEnemies = new List<GameObject>();
+
+        placeableEnemies = gameController.GetComponent<MonsterList>().allMonsters;
+
+        Debug.Log("placeableEnemies" + placeableEnemies);
+      //  Debug.Log("allMonsters.allMonsters " + allMonsters.allMonsters);
+
         positionList = levelController.spawnPoints;
-        changeSpawnPointColor(toUsed: false);
+        //changeSpawnPointColor(toUsed: false);
 
     }
 

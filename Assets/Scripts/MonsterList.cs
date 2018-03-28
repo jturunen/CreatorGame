@@ -14,10 +14,11 @@ public class MonsterList : MonoBehaviour {
 
         foreach (GameObject subListObject in subListObjects)
         {
-            GameObject lo = (GameObject)subListObject;
-            //Debug.Log("Created " + lo);
-            allMonsters.Add(lo);
+            GameObject listObject = subListObject;
+            Debug.Log("Created " + listObject);
+            allMonsters.Add(listObject);
         }
+
     }
 
 }
