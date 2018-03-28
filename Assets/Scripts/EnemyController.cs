@@ -18,8 +18,18 @@ public class EnemyController : MonoBehaviour {
     public GameObject deathPrefab; // Death particle/effect
     public GameObject weaponPrefab; // Currently held weapon
 
+
     //Transform player;
     //Animator anim;
+
+    public bool spawnChoise = false;
+
+
+    bool facingRight = true;
+
+    Transform player;
+    Animator anim;
+
 
     private enum States {idle, chase, attack, flee, dead}; // Enum for state machine
     private States state = States.idle;
@@ -35,6 +45,7 @@ public class EnemyController : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
+
         //anim = GetComponent<Animator>();
         //player = GameObject.FindGameObjectWithTag("Player").transform;
         //target = GameObject.FindGameObjectWithTag("Player").transform;
@@ -42,13 +53,46 @@ public class EnemyController : MonoBehaviour {
 
         //timeSinceLastAttack = attackSpeed;
 
+/*
+        if (!spawnChoise)
+        {
+            player = GameObject.FindGameObjectWithTag("Player").transform;
+        }*/
+
+        anim = GetComponent<Animator>();
+        player = GameObject.FindGameObjectWithTag("Player").transform;
+        //target = GameObject.FindGameObjectWithTag("Player").transform;
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
-                      
+
+/*
+        if (!spawnChoise)
+        {
+            Move();
+        }*/
+
+        
+        switch(state)
+        {
+            case States.idle:
+                Idle();
+                break;
+            case States.chase:
+                Chase();
+                break;
+            case States.attack:
+                Attack();
+                break;
+        }
+        
+
         //Move();
+
 
         //TODO: get real inputs
         /*if (Input.GetButton("Fire2"))
