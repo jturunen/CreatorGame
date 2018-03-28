@@ -13,7 +13,11 @@ public class EnemyController : MonoBehaviour {
     public bool isControlled = false;
     public GameObject attackPrefab; // Attack animation/sprite/whateverthefuck
 
+    public bool spawnChoise = false;
+
+
     bool facingRight = true;
+
     Transform player;
     Animator anim;
 
@@ -28,14 +32,27 @@ public class EnemyController : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
+/*
+        if (!spawnChoise)
+        {
+            player = GameObject.FindGameObjectWithTag("Player").transform;
+        }*/
+
         anim = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
         //target = GameObject.FindGameObjectWithTag("Player").transform;
+
     }
 
     // Update is called once per frame
     void Update()
     {
+/*
+        if (!spawnChoise)
+        {
+            Move();
+        }*/
+
         
         switch(state)
         {
@@ -51,6 +68,7 @@ public class EnemyController : MonoBehaviour {
         }
         
         //Move();
+
 
         //TODO: get real inputs
         /*if (Input.GetButton("Fire2"))
