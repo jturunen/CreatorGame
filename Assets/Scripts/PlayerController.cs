@@ -50,7 +50,7 @@ public class PlayerController : MonoBehaviour {
         else if (moveHorizontal < 0 && facingRight)
         {
             Flip();
-        }
+        }      
     }
 
     private void Attack ()
@@ -103,6 +103,84 @@ public class PlayerController : MonoBehaviour {
                 anim.SetTrigger("Attack");
             }
         }
+
+        /*
+                    float attackX = gameObject.transform.position.x + moveHorizontal;
+            float attackY = gameObject.transform.position.y + moveVertical;
+
+             nextFire = Time.time + attackSpeed;
+             if (moveHorizontal < 0 && moveVertical > 0)
+             {
+                //Debug.Log("Player Attacks Up Side left");
+                spawnHitBox(attackX, attackY);
+             }
+             if (moveHorizontal == -1 || moveHorizontal == 1 && moveVertical == 0)
+             {
+                //Debug.Log("Player Attacks left");
+                spawnHitBox(attackX, attackY);
+            }
+            if (moveHorizontal < 0 && moveVertical < 0)
+             {
+                //Debug.Log("Player Down Side left");
+                spawnHitBox(attackX, attackY);
+            }
+            if (moveHorizontal == 0 && moveVertical == -1)
+             {
+                //Debug.Log("Player Attacks Down");
+                spawnHitBox(attackX, attackY);
+            }
+            if (moveHorizontal > 0 && moveVertical < 0)
+             {
+                //Debug.Log("Player Down Side right");
+                spawnHitBox(attackX, attackY);
+            }
+            if (moveHorizontal == 0 && moveVertical == 1)
+            {
+                //Debug.Log("Player Attacks up");
+                spawnHitBox(attackX, attackY);
+            }
+            if (moveHorizontal > 0 && moveVertical > 0)
+            {
+                //Debug.Log("Player Attacks upside right");
+                spawnHitBox(attackX, attackY);
+            }
+            /*if (moveHorizontal == 1 && moveVertical == 0)
+            {
+                anim.SetTrigger("Attack");
+                //Debug.Log("Player Attacks right");
+            }
+            if (moveHorizontal > 0 && moveVertical > 0)
+            {
+                anim.SetTrigger("AttackUpSide");
+                //Debug.Log("Player Attacks upside right");
+            }
+             else
+            {
+                anim.SetTrigger("Attack");
+            }*/
+
+        /*// Find X position
+        float xx = gameObject.transform.position.x;
+        if (moveHorizontal < transform.position.x - 1f)
+        {
+            xx -= 1f;
+        }
+        else if (moveHorizontal > transform.position.x + 1f)
+        {
+            xx += 1f;
+        }
+
+        // Find Y position
+        float yy = gameObject.transform.position.y;
+        if (moveVertical < transform.position.y - 1f)
+        {
+            yy -= 1f;
+        }
+        else if (moveVertical > transform.position.y + 1f)
+        {
+            yy += 1f;
+        }*/
+        
 
     }
 
