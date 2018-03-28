@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AttackController : MonoBehaviour {
 
-    public float lifetime = 60.0f;
+    public float lifetime = 0.5f;
     //private Transform target;
 
 	// Use this for initialization
@@ -14,26 +14,27 @@ public class AttackController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
-        lifetime--;
-
-        if (lifetime<0)
-        {
-            Destroy(gameObject);
-        } 
-
+       
 	}
 
-    /*private void FixedUpdate()
+    private void FixedUpdate()
     {
-        
-    }*/
+        //lifetime -= Time.deltaTime;
+        lifetime--;
+
+        if (lifetime < 0)
+        {
+            Destroy(gameObject);
+        }
+
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.tag == "Player")
         {
-            Destroy(other.gameObject);
+            //Destroy(other.gameObject);
+            other.gameObject.GetComponent<PlayerController>().hitPoints -= 1;
         }
 
     }

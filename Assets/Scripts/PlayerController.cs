@@ -13,7 +13,15 @@ public class PlayerController : MonoBehaviour {
     public float damageDealt = 0.0f;
     public float victoryPoints = 0;
 
+
+    float xMax = 10, xMin = -10, yMax = 5, yMin = 2;
+
+    public GameObject deathPrefab; // Death particle/effect
+
+    
+
     public float attackSpeed = 0.2F;
+
     private float nextFire = 0.0F;
 
     float moveHorizontal;
@@ -35,7 +43,15 @@ public class PlayerController : MonoBehaviour {
         Move();
         Attack();
         Defensive();
+
+
+        /*Vector2 position = new Vector2(Mathf.Clamp(transform.position.x, xMin, xMax),
+            Mathf.Clamp(transform.position.y, yMin, yMax));
+        transform.position = position;*/
+        if (hitPoints <= 0) Dead();
+
         SpecialAttack();
+
     }
 
     private void Move()
@@ -206,4 +222,11 @@ public class PlayerController : MonoBehaviour {
         theScale.x *= -1;
         transform.localScale = theScale;
     }
+
+    private void Dead()
+    {
+        Instantiate(deathPrefab, transform.position, transform.rotation);
+        Destroy(gameObject);
+    }
+
 }
