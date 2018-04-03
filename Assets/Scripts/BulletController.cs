@@ -6,6 +6,7 @@ public class BulletController : MonoBehaviour
     public Transform target;
     public float moveSpeed = 0;
     public float lifetime = 0f; // How long the attack will last
+    public float myDamage = 1f; // How much damage to deal
 
     //Vector2 point = new Vector2();
     private Vector2 point;
@@ -46,7 +47,21 @@ public class BulletController : MonoBehaviour
         if (other.gameObject.tag == "Player")
         {
             //Destroy(other.gameObject);
-            other.gameObject.GetComponent<PlayerController>().hitPoints -= 1;
+            //other.gameObject.GetComponent<PlayerController>().hitPoints -= 1;
+            if (other.gameObject.GetComponent<PlayerController>())
+            {
+                other.gameObject.GetComponent<PlayerController>().damageTaken += myDamage;
+            }
+            else if (other.gameObject.GetComponent<Player2Controller>())
+            {
+                other.gameObject.GetComponent<Player2Controller>().damageTaken += myDamage;
+            }
+            else if (other.gameObject.GetComponent<Player3Controller>())
+            {
+                other.gameObject.GetComponent<Player3Controller>().damageTaken += myDamage;
+            }
+
+
             Destroy(gameObject);
         }
 
