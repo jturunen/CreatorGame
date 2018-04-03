@@ -5,43 +5,29 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour {
 
     #region Variables
-
     public string myName = ""; // Used for initializing different monsters
     public float moveSpeed = 1.0f; // Movement speed
     public float hitPoints = 1.0f;
     public float attackSpeed = 0.0f; // How low time between shots
     public float attackRange = 1.0f; // Distance how long attack will be started from
     public float fleeRange = 1.0f; // Distance how close Otters can be before fleeing 
+    public float damageTaken = 0f;
     public bool isControlled = false;
     public bool ranged = false;
     public GameObject attackPrefab; // Attack animation/sprite/whateverthefuck
     public GameObject deathPrefab; // Death particle/effect
     public GameObject weaponPrefab; // Currently held weapon
-
-
-    //Transform player;
-    //Animator anim;
-
-    public bool spawnChoise = false;
-
-
-    bool facingRight = true;
-
-    Transform player;
-    Animator anim;
-
-
     private enum States {idle, chase, attack, flee, dead}; // Enum for state machine
     private States state = States.idle;
     //private string state = "idle"; // Start of the state machine, turn into enums later
     private Transform target; // Current target AI should chase
     private GameObject myAttack; // Current attack   
     private bool facingRight = true; // Direction to look at
+    public bool spawnChoise = false;
     private SpriteRenderer spriterend;
     private float timeSinceLastAttack = 0f; // Time since last attack
-
     #endregion
-
+    
     // Use this for initialization
     void Start()
     {
@@ -59,8 +45,8 @@ public class EnemyController : MonoBehaviour {
             player = GameObject.FindGameObjectWithTag("Player").transform;
         }*/
 
-        anim = GetComponent<Animator>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        //anim = GetComponent<Animator>();
+        //player = GameObject.FindGameObjectWithTag("Player").transform;
         //target = GameObject.FindGameObjectWithTag("Player").transform;
 
 
@@ -69,79 +55,108 @@ public class EnemyController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-
-/*
-        if (!spawnChoise)
-        {
-            Move();
-        }*/
-
-        
-        switch(state)
-        {
-            case States.idle:
-                Idle();
-                break;
-            case States.chase:
-                Chase();
-                break;
-            case States.attack:
-                Attack();
-                break;
-        }
-        
-
-        //Move();
-
-
-        //TODO: get real inputs
-        /*if (Input.GetButton("Fire2"))
-        {
-            Attack();
-        }*/
-
-        //TODO: Get real inputs
-        /* if (Input.GetButton("Fire2"))
-         {
-            Defensive();
-         }*/
-
-        //TODO: Get real inputs
-        /*if (Input.GetButton("Fire3"))
-        {
-           SpecialAttack();
-        }*/
-
+    
     }
 
     // Fixed Update
     private void FixedUpdate()
     {
 
-        // States
-        switch (state)
+        if (isControlled == false)
         {
-            case States.idle:
-                Idle();
-                break;
-            case States.chase:
-                Chase();
-                break;
-            case States.attack:
-                Attack();
-                break;
-            case States.flee:
-                Flee();
-                break;
-            case States.dead:
-                Dead();
-                break;
+            // States
+            switch (state)
+            {
+                case States.idle:
+                    Idle();
+                    break;
+                case States.chase:
+                    Chase();
+                    break;
+                case States.attack:
+                    Attack();
+                    break;
+                case States.flee:
+                    Flee();
+                    break;
+                case States.dead:
+                    Dead();
+                    break;
+            }
         }
+        else if (isControlled == true)
+        {
+            // Movement
+            if (!myAttack)
+            {              
+                float moveHorizontal = Input.GetAxisRaw("Horizontal2");
+                float moveVertical = Input.GetAxisRaw("Vertical2");
+                transform.Translate(new Vector3(moveHorizontal, moveVertical) * moveSpeed * Time.deltaTime * 3);
+
+                if (moveHorizontal > 0 && !facingRight)
+                {
+                    facingRight = !facingRight;
+                    Vector3 theScale = transform.localScale;
+                    theScale.x *= -1;
+                    transform.localScale = theScale;
+                }
+                else if (moveHorizontal < 0 && facingRight)
+                {
+                    facingRight = !facingRight;
+                    Vector3 theScale = transform.localScale;
+                    theScale.x *= -1;
+                    transform.localScale = theScale;
+                }
+            }
+            
+            // Health
+            if (hitPoints <= 0)
+            {
+                Instantiate(deathPrefab, transform.position, transform.rotation);
+                SoundManagerController.PlaySound("GoblinDeath");
+                Destroy(gameObject);
+            }
+
+            // My attack
+            if (Input.GetButton("Fire2") && !myAttack)
+            {
+                if (facingRight)
+                {
+                    float x2 = transform.position.x + 0.5f;
+                    float y2 = transform.position.y;
+                    myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
+                    myAttack.GetComponent<AttackController>().myEnemy = "Player";
+                    SoundManagerController.PlaySound("Swish");
+                }
+                if (!facingRight)
+                {
+                    float x2 = transform.position.x - 0.5f;
+                    float y2 = transform.position.y;
+                    myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
+                    myAttack.GetComponent<AttackController>().myEnemy = "Player";
+                    myAttack.GetComponent<SpriteRenderer>().flipX = true;
+                    SoundManagerController.PlaySound("Swish");
+                }
+            }
+
+        }
+        
+
+        
 
         // Attack speed
         if (timeSinceLastAttack > 0)
         {
             timeSinceLastAttack -= Time.deltaTime;
+        }
+
+        if (damageTaken > 0)
+        {
+            hitPoints -= damageTaken;
+            damageTaken = 0;
+            StartCoroutine("HurtColor");
+            Instantiate(deathPrefab, transform.position, transform.rotation);
+            SoundManagerController.PlaySound("Hit");
         }
 
         // Health/Death
@@ -158,7 +173,7 @@ public class EnemyController : MonoBehaviour {
 
         //--- Behaviour
         Debug.Log("My state is Idle");
-
+        
         //--- Trigger
         //if (Random.Range(0, 60) == 0)
         if (true)
@@ -229,6 +244,10 @@ public class EnemyController : MonoBehaviour {
                 float x2 = target.position.x;
                 float y2 = target.position.y;
                 myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
+                myAttack.GetComponent<AttackController>().myEnemy = "Player";
+                if (!facingRight)
+                    myAttack.GetComponent<SpriteRenderer>().flipX = true;
+                SoundManagerController.PlaySound("Swish");
             }
             else if (ranged && timeSinceLastAttack <= 0)
             {
@@ -236,7 +255,8 @@ public class EnemyController : MonoBehaviour {
                 float x2 = transform.position.x;
                 float y2 = transform.position.y;
                 myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
-                myAttack.GetComponent<BulletController>().target = target;              
+                myAttack.GetComponent<BulletController>().target = target;
+                SoundManagerController.PlaySound("Gun");
             }
             
 
@@ -305,6 +325,7 @@ public class EnemyController : MonoBehaviour {
     private void Dead()
     {
         Instantiate(deathPrefab, transform.position, transform.rotation);
+        SoundManagerController.PlaySound("GoblinDeath");
         Destroy(gameObject);
     }
 
@@ -350,6 +371,19 @@ public class EnemyController : MonoBehaviour {
             }
         }
     }
+
+    // Hit flash
+    IEnumerator HurtColor()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            GetComponentInChildren<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.3f); //Red, Green, Blue, Alpha/Transparency
+            yield return new WaitForSeconds(.1f);
+            GetComponentInChildren<SpriteRenderer>().color = Color.white; //White is the default "color" for the sprite, if you're curious.
+            yield return new WaitForSeconds(.1f);
+        }
+    }
+
 
     /*
     private void Move()

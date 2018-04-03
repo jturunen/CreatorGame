@@ -99,7 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   moveSpeed: 10
-  lifetime: 20
+  lifetime: 25
 --- !u!212 &212608301358592168
 SpriteRenderer:
   m_ObjectHideFlags: 1

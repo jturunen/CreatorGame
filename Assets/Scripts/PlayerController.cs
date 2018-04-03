@@ -28,27 +28,50 @@ public class PlayerController : MonoBehaviour {
     float moveVertical;
     bool facingRight = true;
 
+    public GameObject attackPrefab;
+    private GameObject myAttack;
+
+    public float flashLength;
+    private bool flashActive; 
+    private float flashCounter;
+    private SpriteRenderer mySprite;
+    public float damageTaken = 0f;
+
     // Use this for initialization
     void Start () {
         anim = GetComponent<Animator>();
         playerWeapon = GetComponentInChildren(typeof(PlayerWeapon)) as PlayerWeapon;
         attackSpeed = playerWeapon.attackSpeed;
+        mySprite = GetComponentInChildren<SpriteRenderer>();
     }
 
     // Update is called once per frame
     void Update () {
-        moveHorizontal = Input.GetAxis("Horizontal");
-        moveVertical = Input.GetAxis("Vertical");
+        moveHorizontal = Input.GetAxis("Horizontal_P1");
+        moveVertical = Input.GetAxis("Vertical_P1");
 
-        Move();
-        Attack();
-        Defensive();
-
+        if (!myAttack)
+        {
+            Move();
+            Attack();
+            Defensive();
+        }
 
         /*Vector2 position = new Vector2(Mathf.Clamp(transform.position.x, xMin, xMax),
             Mathf.Clamp(transform.position.y, yMin, yMax));
         transform.position = position;*/
         if (hitPoints <= 0) Dead();
+
+        if (damageTaken > 0)
+        {         
+            hitPoints -= damageTaken;
+            damageTaken = 0;
+            StartCoroutine("HurtColor");
+            Instantiate(deathPrefab, transform.position, transform.rotation);
+            SoundManagerController.PlaySound("Hit");
+        }
+
+  
 
         SpecialAttack();
 
@@ -71,6 +94,32 @@ public class PlayerController : MonoBehaviour {
 
     private void Attack ()
     {
+
+        // My attack
+        if (Input.GetButton("Fire1_P1") && !myAttack)
+        {
+            if (facingRight)
+            {
+                float x2 = transform.position.x + 0.5f;
+                float y2 = transform.position.y;
+                myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
+                myAttack.GetComponent<AttackController>().myEnemy = "Minion";
+                SoundManagerController.PlaySound("Swish");
+            }
+            if (!facingRight)
+            {
+                float x2 = transform.position.x - 0.5f;
+                float y2 = transform.position.y;
+                myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
+                myAttack.GetComponent<AttackController>().myEnemy = "Minion";
+                myAttack.GetComponent<SpriteRenderer>().flipX = true;
+                SoundManagerController.PlaySound("Swish");
+            }
+        }
+
+        #region Janne Attack
+
+        /*
         if (Input.GetButton("Fire1") && Time.time > nextFire)
         {
             nextFire = Time.time + attackSpeed;
@@ -99,11 +148,13 @@ public class PlayerController : MonoBehaviour {
                 anim.SetTrigger("AttackDownSide");
                 //Debug.Log("Player Down Side right");
             }
-            /*if (moveHorizontal == 1 && moveVertical == 0)
+            
+            if (moveHorizontal == 1 && moveVertical == 0)
             {
                 anim.SetTrigger("Attack");
                 //Debug.Log("Player Attacks right");
-            }*/
+            }
+            
             if (moveHorizontal > 0 && moveVertical > 0)
             {
                 anim.SetTrigger("AttackUpSide");
@@ -119,6 +170,8 @@ public class PlayerController : MonoBehaviour {
                 anim.SetTrigger("Attack");
             }
         }
+
+        */
 
         /*
                     float attackX = gameObject.transform.position.x + moveHorizontal;
@@ -195,8 +248,10 @@ public class PlayerController : MonoBehaviour {
         else if (moveVertical > transform.position.y + 1f)
         {
             yy += 1f;
-        }*/
-        
+        }
+        */
+
+        #endregion Janne Attack
 
     }
 
@@ -227,6 +282,18 @@ public class PlayerController : MonoBehaviour {
     {
         Instantiate(deathPrefab, transform.position, transform.rotation);
         Destroy(gameObject);
+    }
+
+    // Hit flash
+    IEnumerator HurtColor()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            GetComponentInChildren<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.3f); //Red, Green, Blue, Alpha/Transparency
+            yield return new WaitForSeconds(.1f);
+            GetComponentInChildren<SpriteRenderer>().color = Color.white; //White is the default "color" for the sprite, if you're curious.
+            yield return new WaitForSeconds(.1f);
+        }
     }
 
 }

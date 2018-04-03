@@ -26,10 +26,11 @@ public class DamageScript : MonoBehaviour {
     }
     void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.tag == "Respawn")
+        if(other.tag == "Minion")
         {
             EnemyController enemy = other.GetComponent<EnemyController>();
-            enemy.hitPoints -= weapon.damage;
+            //enemy.hitPoints -= weapon.damage;
+            enemy.hitPoints -= 11;
         }
     }
 }
