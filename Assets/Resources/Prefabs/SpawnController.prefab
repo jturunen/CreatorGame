@@ -51,11 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de3b1321bc134274c85a2279e2aef357, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chosenMonstersList: []
-  allMonsters: {fileID: 0}
-  levelController: {fileID: 0}
-  positionList: []
-  placeableEnemies: []
   maxUnits: 6
-  currentUnit: 0
   spawnRate: 0.5
+  spawnPointPrefab: {fileID: 1120982450915122, guid: 2edc77e2d93b83f4b91718e7277dd1a5,
+    type: 2}
