@@ -128,7 +128,16 @@ public class SpawnController : MonoBehaviour {
         //go throught the list, and instantiate to them to the spawning point
         for (int i = 0; i < chosenMinionsList.Count; i++)
         {
-            Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
+            if(i ==3)
+            {
+                GameObject minion = chosenMinionsList[i];
+                EnemyController c = minion.GetComponent<EnemyController>();
+                c.isControlled = true;
+                Instantiate(minion, levelSpawnPointPositions[i], Quaternion.identity);
+            } else
+            {
+                Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
+            }
         }
         //Enable minionSpawning so to prevent update to spawn enemies multiple times
         minionSpawning = true;
