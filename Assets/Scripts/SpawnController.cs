@@ -48,7 +48,7 @@ public class SpawnController : MonoBehaviour {
         foreach (GameObject subListObject in subListObjects)
         {
             GameObject listObject = subListObject;
-            Debug.Log("Created minion: " + listObject);
+            //Debug.Log("Created minion: " + listObject);
             minionsFromPrefabs.Add(listObject);
         }
 
@@ -66,25 +66,25 @@ public class SpawnController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if (currentMinionCount <= maxMinions && Time.time > nextSpawn) { 
-            if (Input.GetButton("Fire1"))
+        if (currentMinionCount <= maxMinions && Time.time > nextSpawn) {
+            //TODO: change buttons to Fire1 etc. after the 4th controller 
+            if (Input.GetKeyDown(KeyCode.RightArrow))
             {
-                Debug.Log("Created minion Fire1: " + minionsFromPrefabs[0]);
                 SpawnToPoint(minionsFromPrefabs[0]);
             }
-            if (Input.GetButton("Fire2"))
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[1]);
             }
-            if (Input.GetButton("Fire3"))
+            if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[2]);
             }
-            if (Input.GetButton("Fire4"))
+            /*if (Input.GetKeyDown(KeyCode.DownArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[3]);
             }
-            /*if (Input.GetButton("Left Bumber"))
+            if (Input.GetButton("Left Bumber"))
             {
                 SpawnToPoint(minionsFromPrefabs[4]);
             }
@@ -156,10 +156,10 @@ public class SpawnController : MonoBehaviour {
         //Creating list for minimap spawnpoints (Temporary solution)
         minimapSpawnPointPositions.Add(new Vector2(-7.5f, -3));
         // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -2));
-        minimapSpawnPointPositions.Add(new Vector2(-3.5f, -3));
+        minimapSpawnPointPositions.Add(new Vector2(-2.5f, -3));
         minimapSpawnPointPositions.Add(new Vector2(-7.5f, -4));
         // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -4));
-        minimapSpawnPointPositions.Add(new Vector2(-3.5f, -4));
+        minimapSpawnPointPositions.Add(new Vector2(-2.5f, -4));
 
         //Creating list for spawnpoints on the level (where chosen minions will be spawned) (Temporary solution)
         levelSpawnPointPositions.Add(new Vector2(-6, 0));
@@ -175,7 +175,7 @@ public class SpawnController : MonoBehaviour {
             spawnPointObject = Instantiate(spawnPointPrefab, minimapSpawnPointPositions[i], Quaternion.identity);
             //give spawnpoint a name with the number, to indentify
             spawnPointObject.name = "SpawnPoint" + i;
-            Debug.Log("Created SPAWNPOINT: " + i);
+            //Debug.Log("Created SPAWNPOINT: " + i);
 
         }
     }
