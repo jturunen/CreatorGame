@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 
 public class SpawnController : MonoBehaviour {
 
@@ -11,9 +11,9 @@ public class SpawnController : MonoBehaviour {
     * Then for example, when players enter room, go through list and spawn monsters then.
     */
     #region Variables
+    public int maxMinions = 0; //How many units can be spawned to map
 
-    public int maxUnits = 0; //How many units can be spawned to map
-    private int currentUnit = 0; // Which unit(slot) is currently being used 
+    private int currentMinionCount = 0; // Which minion(count) is currently being used 
     private bool minionSpawning = false; //Check to prevent multiple minion spawns
 
     public float spawnRate = 0.5F; // How fast can be minions put to list (spawned to list)
@@ -23,8 +23,11 @@ public class SpawnController : MonoBehaviour {
 
     private List<GameObject> minionsFromPrefabs = new List<GameObject>(); // List for minions from prefabs
 
+    private static bool created = false;
+
     //Spawnpoint variables
-    private List<Vector2> spawnPointPositions = new List<Vector2>(); //List for spawnpoint positions
+    private List<Vector2> minimapSpawnPointPositions = new List<Vector2>(); //List for minimap spawnpoint positions
+    private List<Vector2> levelSpawnPointPositions = new List<Vector2>(); //List for spawnpoint positions in the level
     public GameObject spawnPointPrefab; //Prefab for spawnpoint
     private GameObject spawnPointObject; //Temporary spawnpoint object to name it on instantiate
     private GameObject spawnPointToFind; //Temporary spawnpoint object to find it on scene
@@ -33,9 +36,13 @@ public class SpawnController : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-
-        // Get Minions folder as object.
-        Object[] subListObjects = Resources.LoadAll("Prefabs/Characters", typeof(GameObject));
+        if (!created)
+        {
+            DontDestroyOnLoad(this.gameObject);
+            created = true;
+        }
+            // Get Minions folder as object.
+            Object[] subListObjects = Resources.LoadAll("Prefabs/Characters", typeof(GameObject));
 
         // Get all minion prefabs from folder "Minions" and put to list
         foreach (GameObject subListObject in subListObjects)
@@ -59,7 +66,7 @@ public class SpawnController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if (currentUnit <= maxUnits && Time.time > nextSpawn) { 
+        if (currentMinionCount <= maxMinions && Time.time > nextSpawn) { 
             if (Input.GetButton("Fire1"))
             {
                 Debug.Log("Created minion Fire1: " + minionsFromPrefabs[0]);
@@ -87,9 +94,16 @@ public class SpawnController : MonoBehaviour {
             }*/
         }
         // Spawn enemies from list
-        if (currentUnit == maxUnits && !minionSpawning)
+        if (currentMinionCount == maxMinions && !minionSpawning)
         {
-            SpawnUnitsToPoints();
+            if (SceneManager.GetActiveScene().name == "creatingPhaseScene")
+            {
+                SceneManager.LoadScene("fightScene", LoadSceneMode.Single);
+            } else if (SceneManager.GetActiveScene().name == "fightScene")
+            {
+                SpawnUnitsToPoints();
+            }
+
         }
     }
 
@@ -100,9 +114,9 @@ public class SpawnController : MonoBehaviour {
         chosenMinionsList.Add(chosenEnemy);
         //Change "current" spawnpoint to used
         changeSpawnPointColor(toUsed: true);
-        currentUnit++;
+        currentMinionCount++;
         //Change next spawnpoint to be current
-        if (currentUnit < maxUnits)
+        if (currentMinionCount < maxMinions)
         {
             changeSpawnPointColor(toUsed: false);
         }
@@ -114,7 +128,7 @@ public class SpawnController : MonoBehaviour {
         //go throught the list, and instantiate to them to the spawning point
         for (int i = 0; i < chosenMinionsList.Count; i++)
         {
-            Instantiate(chosenMinionsList[i], spawnPointPositions[i], Quaternion.identity);
+            Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
         }
         //Enable minionSpawning so to prevent update to spawn enemies multiple times
         minionSpawning = true;
@@ -123,7 +137,7 @@ public class SpawnController : MonoBehaviour {
     private void changeSpawnPointColor(bool toUsed)
     {
         //Find current spawnpoint from the scene and access its sprite
-        spawnPointToFind = GameObject.Find("SpawnPoint" + currentUnit);
+        spawnPointToFind = GameObject.Find("SpawnPoint" + currentMinionCount);
         SpriteRenderer spawnPointSprite = spawnPointToFind.GetComponent<SpriteRenderer>();
         if (toUsed)
         {
@@ -137,25 +151,34 @@ public class SpawnController : MonoBehaviour {
 
     }
 
-    //Temporary solution, until we get real positions that changes with maps.
     private void createSpawnPoints()
     {
-        //Creating temporary list, the positions must be placed better
-        spawnPointPositions.Add(new Vector2(-7.5f, -2));
-        spawnPointPositions.Add(new Vector2(-5.5f, -2));
-        spawnPointPositions.Add(new Vector2(-3.5f, -2));
-        spawnPointPositions.Add(new Vector2(-7.5f, -4));
-        spawnPointPositions.Add(new Vector2(-5.5f, -4));
-        spawnPointPositions.Add(new Vector2(-3.5f, -4));
+        //Creating list for minimap spawnpoints (Temporary solution)
+        minimapSpawnPointPositions.Add(new Vector2(-7.5f, -3));
+        // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -2));
+        minimapSpawnPointPositions.Add(new Vector2(-3.5f, -3));
+        minimapSpawnPointPositions.Add(new Vector2(-7.5f, -4));
+        // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -4));
+        minimapSpawnPointPositions.Add(new Vector2(-3.5f, -4));
 
-        //Go thrgouh given coordiatens and instatiate a spawnpoint to that location
-        for (int i = 0; i < maxUnits; i++)
+        //Creating list for spawnpoints on the level (where chosen minions will be spawned) (Temporary solution)
+        levelSpawnPointPositions.Add(new Vector2(-6, 0));
+        // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -2));
+        levelSpawnPointPositions.Add(new Vector2(6, 0));
+        levelSpawnPointPositions.Add(new Vector2(-6, -4));
+        // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -4));
+        levelSpawnPointPositions.Add(new Vector2(6, -4));
+
+        //Go through given coordiatens and instatiate a spawnpoint to that location
+        for (int i = 0; i < maxMinions; i++)
         {
-            spawnPointObject = Instantiate(spawnPointPrefab, spawnPointPositions[i], Quaternion.identity);
+            spawnPointObject = Instantiate(spawnPointPrefab, minimapSpawnPointPositions[i], Quaternion.identity);
             //give spawnpoint a name with the number, to indentify
             spawnPointObject.name = "SpawnPoint" + i;
             Debug.Log("Created SPAWNPOINT: " + i);
 
         }
     }
+
+
 }
