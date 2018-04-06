@@ -7,7 +7,7 @@ public class Player3Controller : MonoBehaviour
 {
 
     Animator anim;
-    PlayerWeapon playerWeapon;
+    
 
     public float moveSpeed = 0.0f;
     public float hitPoints = 0.0f;
@@ -42,9 +42,7 @@ public class Player3Controller : MonoBehaviour
     void Start()
     {
         anim = GetComponent<Animator>();
-        playerWeapon = GetComponentInChildren(typeof(PlayerWeapon)) as PlayerWeapon;
-        attackSpeed = playerWeapon.attackSpeed;
-        mySprite = GetComponentInChildren<SpriteRenderer>();
+        
     }
 
     // Update is called once per frame

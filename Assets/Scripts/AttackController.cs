@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class AttackController : MonoBehaviour {
 
-    public float lifetime = 0.5f;
-    public string myEnemy;
-    public float myDamage = 1.0f;
+    public float lifetime; // How long attack will last
+    public string myEnemy; // What character should attack damage
+    public float myDamage; // How much damage to deal
     //private Transform target;
 
 	// Use this for initialization
@@ -21,8 +21,8 @@ public class AttackController : MonoBehaviour {
 
     private void FixedUpdate()
     {
-        //lifetime -= Time.deltaTime;
-        lifetime--;
+        lifetime -= 1 * Time.deltaTime;
+        //lifetime--;
 
         if (lifetime < 0)
         {

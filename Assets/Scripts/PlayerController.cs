@@ -5,102 +5,273 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
+    #region Variables
+
     Animator anim;
-    PlayerWeapon playerWeapon;
 
-    public float moveSpeed = 0.0f;
-    public float hitPoints = 0.0f;
-    public float damageDealt = 0.0f;
-    public float victoryPoints = 0;
-
-
-    float xMax = 10, xMin = -10, yMax = 5, yMin = 2;
-
+    public int playerNumber; // What is the player number
+    public float moveSpeed = 0.0f; // Movement speed
+    public float hitPoints = 0.0f; // Health
+    public float attackRange; // How far can character attack
+    public float flashLength; // How long hitflash will last
+    public float damageTaken = 0f; // Amount of incoming damage
+    public float dodgeDistance = 0.0f; // Distance to dodge roll   
+    public float dodgeSpeed; // Speed of how fast to dodge;
+    public bool dodgeSafety; // Can character take damage while while dodging   
+    public GameObject attackPrefab; // The attack prefab this character uses
     public GameObject deathPrefab; // Death particle/effect
 
-    
-
-    public float attackSpeed = 0.2F;
-
-    private float nextFire = 0.0F;
-
-    float moveHorizontal;
-    float moveVertical;
-    bool facingRight = true;
-
-    public GameObject attackPrefab;
-    private GameObject myAttack;
-
-    public float flashLength;
-    private bool flashActive; 
-    private float flashCounter;
+    private float moveHorizontal; // Horizontal movement, keyboard
+    private float moveVertical; // Vertical movement, keyboard
+    private float moveHorizontal_P1; // Horizontal movement, gamepad
+    private float moveVertical_P1; // Vertical movement, gamepad
+    private float flashCounter; // Duration of hitflash
+    private float dodgeDistanceNow; // Distance dodge rolled so far
+    private bool facingRight = true; // Is the character facing right?
+    private bool flashActive;  // Is the hitflash active?   
+    private bool attackDone; // Did character already do attack in attack state?
+    private bool dodgeStarted; // Dodge roll started yet?
+    private bool buttonAttack; // Attack button being pressed?
+    private enum States { idle, move, attack, flee, dead, dodge, win }; // Enum for state machine
+    private States state = States.idle; // State
+    private GameObject myAttack; // Characters current attack, default should be null
     private SpriteRenderer mySprite;
-    public float damageTaken = 0f;
+
+    #endregion Variables
 
     // Use this for initialization
     void Start () {
         anim = GetComponent<Animator>();
-        playerWeapon = GetComponentInChildren(typeof(PlayerWeapon)) as PlayerWeapon;
-        attackSpeed = playerWeapon.attackSpeed;
-        mySprite = GetComponentInChildren<SpriteRenderer>();
     }
 
     // Update is called once per frame
     void Update () {
-        moveHorizontal = Input.GetAxis("Horizontal_P1");
-        moveVertical = Input.GetAxis("Vertical_P1");
 
-        if (!myAttack)
+        //this.transform.Translate(0, 1 * Time.deltaTime, 0, Space.World);
+        //transform.Rotate(0, 0, Time.deltaTime * -10000);
+
+        // Read input from the player
+        readInput();
+
+        // States
+        switch (state)
         {
-            Move();
-            Attack();
-            Defensive();
-        }
-
-        /*Vector2 position = new Vector2(Mathf.Clamp(transform.position.x, xMin, xMax),
-            Mathf.Clamp(transform.position.y, yMin, yMax));
-        transform.position = position;*/
+            case States.idle:
+                Idle();
+                break;
+            case States.move:
+                Move();
+                break;
+            case States.attack:
+                Attack();
+                break;
+            case States.dodge:
+                Dodge();
+                break;
+            case States.win:
+                Win();
+                break;
+            /*
+            case States.flee:
+                Flee();
+                break;
+            case States.dead:
+                Dead();
+                break;
+            */
+        }       
+        
+        // Take damage
+        if (damageTaken > 0) handleDamage();
+        
+        // Die
         if (hitPoints <= 0) Dead();
 
-        if (damageTaken > 0)
-        {         
-            hitPoints -= damageTaken;
-            damageTaken = 0;
-            StartCoroutine("HurtColor");
-            Instantiate(deathPrefab, transform.position, transform.rotation);
-            SoundManagerController.PlaySound("Hit");
+        /*
+        // Game won?
+        GameObject testi = GameObject.FindWithTag("GameController");
+        if (testi.GetComponent<GameController>().winOtters)
+        {
+            state = States.win;
         }
+        */
 
-  
-
-        SpecialAttack();
+        
+        
 
     }
 
+    // Read input from the player
+    private void readInput()
+    {
+        switch (playerNumber)
+        {
+
+            case 1:
+                moveHorizontal = Input.GetAxis("Horizontal");
+                moveVertical = Input.GetAxis("Vertical");
+                //buttonAttack = Input.GetKey(KeyCode.F);
+                buttonAttack = Input.GetButtonDown("Fire1_P1");
+                break;
+
+            case 2:
+                moveHorizontal = Input.GetAxis("Horizontal_P2");
+                moveVertical = Input.GetAxis("Vertical_P2");
+                break;
+
+            case 3:
+                moveHorizontal = Input.GetAxis("Horizontal_P3");
+                moveVertical = Input.GetAxis("Vertical_P3");
+                break;
+
+            case 4:
+                moveHorizontal = Input.GetAxis("Horizontal_P4");
+                moveVertical = Input.GetAxis("Vertical_P4");
+                break;
+
+
+        }
+
+            
+
+    }
+
+    // Idle state
+    private void Idle()
+    {
+
+        // Log
+        Debug.Log("My state is now Idle");
+
+        // Triggers
+        #region Trigger
+
+        // User inputs to move
+        if (moveHorizontal != 0f || moveVertical != 0f)
+        {
+            state = States.move;
+            anim.SetBool("Idle", false);
+            anim.SetBool("Walk", true);
+        }
+
+        // User input to attack
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            state = States.attack;
+            anim.SetBool("Idle", false);
+            anim.SetBool("Attack", true);
+        }
+
+        #endregion Trigger
+
+        #region Behaviour
+
+        transform.localEulerAngles = new Vector3(0, 0, 0);
+
+        #endregion Behaviour
+
+    }
+
+    // Movement state
     private void Move()
     {
-        Vector3 movement = new Vector3(moveHorizontal, moveVertical, 0.0f);
-        GetComponent<Rigidbody2D>().velocity = movement * moveSpeed;
+        
+        Debug.Log("My state is now move");
 
-        if (moveHorizontal > 0 && !facingRight)
+        #region Trigger
+
+        // No user input
+        if (moveHorizontal == 0.0f && moveVertical == 0.0f)
         {
-            Flip();
+            state = States.idle;
+            anim.SetBool("Idle", true);
+            anim.SetBool("Walk", false);
         }
-        else if (moveHorizontal < 0 && facingRight)
+
+        // User inputs attack
+        if (Input.GetKeyDown(KeyCode.Space) || buttonAttack)
         {
-            Flip();
-        }      
+            state = States.attack;
+            anim.SetBool("Walk", false);
+            anim.SetBool("Attack", true);          
+        }
+
+        // Dodge
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            state = States.dodge;
+            anim.SetBool("Walk", false);
+            anim.SetBool("Dodge", true);
+        }
+
+        #endregion Trigger
+
+        #region Behaviour
+
+        // Flip character
+        Flip();
+
+        // Keyboard movement
+        #region Keyboard
+
+        // Handle input, move character
+        //Vector3 movement = new Vector3(moveHorizontal, moveVertical, 0.0f);
+        //GetComponent<Rigidbody2D>().velocity = movement * moveSpeed;
+
+        //float moveHorizontal = Input.GetAxisRaw("Horizontal");
+        //float moveVertical = Input.GetAxisRaw("Vertical");
+        transform.Translate(new Vector3(moveHorizontal, moveVertical) * moveSpeed * Time.deltaTime, Space.World);
+
+        #endregion Keyboard
+
+        // Gamepad movement
+        #region Gamepad
+        /*
+        // Get input
+        moveHorizontal_P1 = Input.GetAxis("Horizontal_P1");
+        moveVertical_P1 = Input.GetAxis("Vertical_P1");
+
+        // Move
+        Vector3 movement_p1 = new Vector3(moveHorizontal_P1, moveVertical_P1, 0.0f);
+        GetComponent<Rigidbody2D>().velocity = movement_p1 * moveSpeed;
+        */
+        #endregion Gamepad    
+
+        #endregion Behaviour
+
     }
 
+    // Attack 
     private void Attack ()
     {
+        
+        // Log
+        Debug.Log("My state is now attack");
 
-        // My attack
-        if (Input.GetButton("Fire1_P1") && !myAttack)
+        // Triggers
+        #region Triggers
+        
+        // Go idle when attack is done
+        if (!myAttack && attackDone)
+        {
+            attackDone = false;
+            state = States.idle;
+            anim.SetBool("Attack", false);
+            anim.SetBool("Idle", true);
+        }
+        
+        #endregion Triggers
+
+        #region Behaviour
+
+        // Create attack prefab left or right
+        if (!myAttack && !attackDone && (Input.GetButton("Fire1") || Input.GetButton("Fire1_P1")))
+        //if (!attackDone && !myAttack)
         {
             if (facingRight)
             {
-                float x2 = transform.position.x + 0.5f;
+                attackDone = true;
+                float x2 = transform.position.x + attackRange;
                 float y2 = transform.position.y;
                 myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
                 myAttack.GetComponent<AttackController>().myEnemy = "Minion";
@@ -108,7 +279,8 @@ public class PlayerController : MonoBehaviour {
             }
             if (!facingRight)
             {
-                float x2 = transform.position.x - 0.5f;
+                attackDone = true;
+                float x2 = transform.position.x - attackRange;
                 float y2 = transform.position.y;
                 myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
                 myAttack.GetComponent<AttackController>().myEnemy = "Minion";
@@ -117,171 +289,120 @@ public class PlayerController : MonoBehaviour {
             }
         }
 
-        #region Janne Attack
-
-        /*
-        if (Input.GetButton("Fire1") && Time.time > nextFire)
-        {
-            nextFire = Time.time + attackSpeed;
-            if (moveHorizontal < 0 && moveVertical > 0)
-            {
-                anim.SetTrigger("AttackUpSide");
-                //Debug.Log("Player Attacks Up Side left");
-            }
-            if (moveHorizontal == -1 || moveHorizontal == 1 && moveVertical == 0)
-            {
-                anim.SetTrigger("Attack");
-                //Debug.Log("Player Attacks left");
-            }
-            if (moveHorizontal < 0 && moveVertical < 0)
-            {
-                anim.SetTrigger("AttackDownSide");
-                //Debug.Log("Player Down Side left");
-            }
-            if (moveHorizontal == 0 && moveVertical == -1)
-            {
-                anim.SetTrigger("AttackDown");
-                //Debug.Log("Player Attacks Down");
-            }
-            if (moveHorizontal > 0 && moveVertical < 0)
-            {
-                anim.SetTrigger("AttackDownSide");
-                //Debug.Log("Player Down Side right");
-            }
-            
-            if (moveHorizontal == 1 && moveVertical == 0)
-            {
-                anim.SetTrigger("Attack");
-                //Debug.Log("Player Attacks right");
-            }
-            
-            if (moveHorizontal > 0 && moveVertical > 0)
-            {
-                anim.SetTrigger("AttackUpSide");
-                //Debug.Log("Player Attacks upside right");
-            }
-            if (moveHorizontal == 0 && moveVertical == 1)
-            {
-                anim.SetTrigger("AttackUp");
-                //Debug.Log("Player Attacks up");
-
-            } else
-            {
-                anim.SetTrigger("Attack");
-            }
-        }
-
-        */
-
-        /*
-                    float attackX = gameObject.transform.position.x + moveHorizontal;
-            float attackY = gameObject.transform.position.y + moveVertical;
-
-             nextFire = Time.time + attackSpeed;
-             if (moveHorizontal < 0 && moveVertical > 0)
-             {
-                //Debug.Log("Player Attacks Up Side left");
-                spawnHitBox(attackX, attackY);
-             }
-             if (moveHorizontal == -1 || moveHorizontal == 1 && moveVertical == 0)
-             {
-                //Debug.Log("Player Attacks left");
-                spawnHitBox(attackX, attackY);
-            }
-            if (moveHorizontal < 0 && moveVertical < 0)
-             {
-                //Debug.Log("Player Down Side left");
-                spawnHitBox(attackX, attackY);
-            }
-            if (moveHorizontal == 0 && moveVertical == -1)
-             {
-                //Debug.Log("Player Attacks Down");
-                spawnHitBox(attackX, attackY);
-            }
-            if (moveHorizontal > 0 && moveVertical < 0)
-             {
-                //Debug.Log("Player Down Side right");
-                spawnHitBox(attackX, attackY);
-            }
-            if (moveHorizontal == 0 && moveVertical == 1)
-            {
-                //Debug.Log("Player Attacks up");
-                spawnHitBox(attackX, attackY);
-            }
-            if (moveHorizontal > 0 && moveVertical > 0)
-            {
-                //Debug.Log("Player Attacks upside right");
-                spawnHitBox(attackX, attackY);
-            }
-            /*if (moveHorizontal == 1 && moveVertical == 0)
-            {
-                anim.SetTrigger("Attack");
-                //Debug.Log("Player Attacks right");
-            }
-            if (moveHorizontal > 0 && moveVertical > 0)
-            {
-                anim.SetTrigger("AttackUpSide");
-                //Debug.Log("Player Attacks upside right");
-            }
-             else
-            {
-                anim.SetTrigger("Attack");
-            }*/
-
-        /*// Find X position
-        float xx = gameObject.transform.position.x;
-        if (moveHorizontal < transform.position.x - 1f)
-        {
-            xx -= 1f;
-        }
-        else if (moveHorizontal > transform.position.x + 1f)
-        {
-            xx += 1f;
-        }
-
-        // Find Y position
-        float yy = gameObject.transform.position.y;
-        if (moveVertical < transform.position.y - 1f)
-        {
-            yy -= 1f;
-        }
-        else if (moveVertical > transform.position.y + 1f)
-        {
-            yy += 1f;
-        }
-        */
-
-        #endregion Janne Attack
+        #endregion Behaviour
 
     }
 
-    private void Defensive()
-    {
-        if (Input.GetButton("Fire2"))
-        {
-            Debug.Log("Player Defence");
-        }
-    }
-    private void SpecialAttack()
-    {
-        if (Input.GetButton("Fire3"))
-        {
-            Debug.Log("Player Special attack");
-        }
-    }
-
+    // Flip character
     private void Flip()
     {
-        facingRight = !facingRight;
-        Vector3 theScale = transform.localScale;
-        theScale.x *= -1;
-        transform.localScale = theScale;
+
+        // Flip character horizontally
+        if (moveHorizontal > 0 && !facingRight)
+        {
+            facingRight = !facingRight;
+            Vector3 theScale = transform.localScale;
+            theScale.x *= -1;
+            transform.localScale = theScale;
+        }
+        else if (moveHorizontal < 0 && facingRight)
+        {
+            facingRight = !facingRight;
+            Vector3 theScale = transform.localScale;
+            theScale.x *= -1;
+            transform.localScale = theScale;
+        }
+     
     }
 
+    // Die
     private void Dead()
     {
         Instantiate(deathPrefab, transform.position, transform.rotation);
         Destroy(gameObject);
+    }
+
+    // Win
+    private void Win()
+    {
+        Debug.Log("My state is now win");
+        transform.Rotate(new Vector3(0, 0, -1), Time.deltaTime * 1800, Space.Self);
+    }
+
+    // Dodge roll
+    private void Dodge()
+    {
+
+        // Log
+        Debug.Log("My state is now Dodge");
+
+        // Trigger
+        #region Trigger
+
+        // Go idle if roll is done
+        if (dodgeDistanceNow >= dodgeDistance)
+        {
+            state = States.idle;
+            dodgeStarted = false;
+            anim.SetBool("Dodge", false);
+            anim.SetBool("Idle", true);
+            //transform.localEulerAngles = new Vector3(0, 0, 0);
+        }
+
+        // User inputs attack
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            state = States.attack;
+            anim.SetBool("Dodge", false);
+            anim.SetBool("Attack", true);
+            dodgeStarted = false;
+        }
+
+        #endregion Trigger
+
+        // Behaviour
+        #region Behaviour
+
+        // Initialize dodge
+        if (!dodgeStarted)
+        {
+            dodgeStarted = true;
+            dodgeDistanceNow = 0;
+        }
+
+        // Dodge 
+        if (facingRight)
+        {          
+            float x = moveHorizontal * dodgeSpeed * Time.deltaTime;
+            float y = moveVertical * dodgeSpeed * Time.deltaTime;
+            transform.Translate(new Vector3(x, y), Space.World);
+            dodgeDistanceNow += (1 * dodgeSpeed * Time.deltaTime) + (1 * dodgeSpeed * Time.deltaTime);
+            //transform.Rotate(0, 0, Time.deltaTime * -10000);
+            transform.Rotate(new Vector3(0,0,-1), Time.deltaTime * 1800, Space.Self);
+        }           
+        else
+        {
+            float x = moveHorizontal * dodgeSpeed * Time.deltaTime;
+            float y = moveVertical * dodgeSpeed * Time.deltaTime;
+            transform.Translate(new Vector3(x, y), Space.World);
+            dodgeDistanceNow += (1 * dodgeSpeed * Time.deltaTime) + (1 * dodgeSpeed * Time.deltaTime);
+            transform.Rotate(new Vector3(0,0,1), Time.deltaTime * 1800, Space.Self);
+            
+        }
+
+        #endregion Behaviour
+
+    }
+
+    // Handle incoming damage
+    private void handleDamage()
+    {
+        
+        hitPoints -= damageTaken;
+        damageTaken = 0;
+        StartCoroutine("HurtColor");
+        Instantiate(deathPrefab, transform.position, transform.rotation);
+        SoundManagerController.PlaySound("Hit");
     }
 
     // Hit flash

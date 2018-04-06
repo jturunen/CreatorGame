@@ -6,8 +6,9 @@ public class SoundManagerController : MonoBehaviour {
 
     public static AudioClip mainMusic, goblinDieSound1, goblinDieSound2, goblinDieSound3,
         goblinDieSound4, goblinDieSound5, goblinDieSound6, goblinDieSound7, swish1, swish2, swish3, gun,
-        hit1, hit2, hit3, hit4, hit5;
+        hit1, hit2, hit3, hit4, hit5, woahLong, woah1, woah2, woah3, woah4, woah5, pumpReload2;
     static AudioSource audioSrc;
+    public bool playMusic;
 
     // Use this for initialization
     void Start()
@@ -35,11 +36,24 @@ public class SoundManagerController : MonoBehaviour {
 
         gun = Resources.Load<AudioClip>("chaingun");
 
+        pumpReload2 = Resources.Load<AudioClip>("pumpReload2");
+
+        woahLong = Resources.Load<AudioClip>("woahLong");
+        woah1 = Resources.Load<AudioClip>("woah1");
+        woah2 = Resources.Load<AudioClip>("woah2");
+        woah3 = Resources.Load<AudioClip>("woah3");
+        woah4 = Resources.Load<AudioClip>("woah4");
+        woah5 = Resources.Load<AudioClip>("woah5");
+
         audioSrc = GetComponent<AudioSource>();
 
-        audioSrc.clip = mainMusic;
-        audioSrc.loop = true;
-        audioSrc.Play();
+        // Play background music
+        if (playMusic)
+        {
+            audioSrc.clip = mainMusic;
+            audioSrc.loop = true;
+            audioSrc.Play();
+        }
 
     }
 
@@ -53,6 +67,14 @@ public class SoundManagerController : MonoBehaviour {
     {
         switch (clip)
         {
+
+            // Play background music
+            case "Music":
+                audioSrc.clip = mainMusic;
+                audioSrc.loop = true;
+                audioSrc.Play();
+                break;
+
             case "GoblinDeath":
                 //audioSrc.PlayOneShot(goblinDieSound);
 
@@ -136,6 +158,34 @@ public class SoundManagerController : MonoBehaviour {
                         break;
                 }
 
+                break;
+
+            case "Win":
+
+                int iwoah = Random.Range(1, 5) + 1;
+
+                switch (iwoah)
+                {
+                    case 1:
+                        audioSrc.PlayOneShot(woah1);
+                        break;
+                    case 2:
+                        audioSrc.PlayOneShot(woah2);
+                        break;
+                    case 3:
+                        audioSrc.PlayOneShot(woah3);
+                        break;
+                    case 4:
+                        audioSrc.PlayOneShot(woah4);
+                        break;
+                    case 5:
+                        audioSrc.PlayOneShot(woah5);
+                        break;
+                }
+                break;
+
+            case "Reload":
+                audioSrc.PlayOneShot(pumpReload2);
                 break;
 
         }

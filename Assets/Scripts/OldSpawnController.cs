@@ -6,6 +6,7 @@ public class OldSpawnController : MonoBehaviour {
 
     public GameObject spawneri;
     public GameObject enemy4, enemy8, enemy6, enemy2;
+    public int trashyAmount, goldyAmount, bigsyAmount;
 
     private GameObject currentMonster;
     private List<GameObject> monsters;
@@ -33,7 +34,7 @@ public class OldSpawnController : MonoBehaviour {
 		*/
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < trashyAmount; i++)
             {
                 currentMonster = Instantiate(enemy4, transform.position, Quaternion.identity);
                 monsters.Add(currentMonster);
@@ -44,15 +45,21 @@ public class OldSpawnController : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            currentMonster = Instantiate(enemy8, transform.position, Quaternion.identity);
-            monsters.Add(currentMonster);
+            for (int i = 0; i < goldyAmount; i++)
+            {
+                currentMonster = Instantiate(enemy8, transform.position, Quaternion.identity);
+                monsters.Add(currentMonster);
+            }
             SpawnNext();
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            currentMonster = Instantiate(enemy6, transform.position, Quaternion.identity);
-            monsters.Add(currentMonster);
+            for (int i = 0; i < bigsyAmount; i++)
+            {
+                currentMonster = Instantiate(enemy6, transform.position, Quaternion.identity);
+                monsters.Add(currentMonster);
+            }
             SpawnNext();
         }
 
@@ -87,10 +94,13 @@ public class OldSpawnController : MonoBehaviour {
                 GameObject enemy = monsters[3];
                 EnemyController c = enemy.GetComponent<EnemyController>();
                 c.isControlled = true;
-                
+
                 //enemy.AddComponent<CreatorController> ();
                 //ChestController c = other.gameObject.GetComponent<ChestController>();
                 //c.health -= 1;
+
+                GameObject testi = GameObject.FindWithTag("GameController");
+                testi.GetComponent<GameController>().allMinionsSpawned = true;
 
                 Destroy(gameObject);
                 //transform.position new Vector3( 100, 0, 0);
