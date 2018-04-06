@@ -187,12 +187,14 @@ MonoBehaviour:
   moveSpeed: 2
   hitPoints: 6
   attackSpeed: 0
-  attackRange: 1
+  attackRange: 1.75
   fleeRange: 0
   damageTaken: 0
+  magazineSize: 0
+  reloadTime: 0
   isControlled: 0
   ranged: 0
-  attackPrefab: {fileID: 1175659217084392, guid: ada09889eaf46804ab99357f5d2bd326,
+  attackPrefab: {fileID: 1244472726628718, guid: 2b714a7244ec7a34ba63055944253e5d,
     type: 2}
   deathPrefab: {fileID: 1734338061279592, guid: 5e4b5485ae685c94b915d6ae0bccd5b9,
     type: 2}

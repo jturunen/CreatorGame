@@ -35,9 +35,9 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4157345668765656}
+  - component: {fileID: 114015553244313980}
   - component: {fileID: 61218398511467706}
   - component: {fileID: 50180667959163472}
-  - component: {fileID: 114015553244313980}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Minion
@@ -215,14 +215,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myName: 
   moveSpeed: 2
-  hitPoints: 4
+  hitPoints: 1
   attackSpeed: 0
   attackRange: 1
   fleeRange: 0
   damageTaken: 0
+  magazineSize: 0
+  reloadTime: 0
   isControlled: 0
   ranged: 0
-  attackPrefab: {fileID: 1175659217084392, guid: ada09889eaf46804ab99357f5d2bd326,
+  attackPrefab: {fileID: 1244472726628718, guid: 2b714a7244ec7a34ba63055944253e5d,
     type: 2}
   deathPrefab: {fileID: 1734338061279592, guid: 5e4b5485ae685c94b915d6ae0bccd5b9,
     type: 2}
@@ -259,7 +261,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 1847066541
+  m_SortingLayerID: 1343105891
   m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 79feb8338e0e599429546b67f6ae1b67, type: 3}

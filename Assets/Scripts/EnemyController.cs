@@ -11,13 +11,15 @@ public class EnemyController : MonoBehaviour {
     public float attackSpeed = 0.0f; // How low time between shots
     public float attackRange = 1.0f; // Distance how long attack will be started from
     public float fleeRange = 1.0f; // Distance how close Otters can be before fleeing 
-    public float damageTaken = 0f;
+    public float damageTaken = 0f; // Damage incoming from outside
+    public float magazineSize; // Size of the magazine
+    public float reloadTime; // Time to reload
     public bool isControlled = false;
     public bool ranged = false;
     public GameObject attackPrefab; // Attack animation/sprite/whateverthefuck
     public GameObject deathPrefab; // Death particle/effect
     public GameObject weaponPrefab; // Currently held weapon
-    private enum States {idle, chase, attack, flee, dead}; // Enum for state machine
+    private enum States {idle, chase, attack, flee, dead, reload}; // Enum for state machine
     private States state = States.idle;
     //private string state = "idle"; // Start of the state machine, turn into enums later
     private Transform target; // Current target AI should chase
@@ -26,29 +28,15 @@ public class EnemyController : MonoBehaviour {
     public bool spawnChoise = false;
     private SpriteRenderer spriterend;
     private float timeSinceLastAttack = 0f; // Time since last attack
+    private float bullets;
+    private float timeSpentReloading;
     #endregion
     
     // Use this for initialization
     void Start()
     {
 
-        //anim = GetComponent<Animator>();
-        //player = GameObject.FindGameObjectWithTag("Player").transform;
-        //target = GameObject.FindGameObjectWithTag("Player").transform;
-        //spriterend = transform.Find("EnemySprite").GetComponent<SpriteRenderer>();
-
-        //timeSinceLastAttack = attackSpeed;
-
-/*
-        if (!spawnChoise)
-        {
-            player = GameObject.FindGameObjectWithTag("Player").transform;
-        }*/
-
-        //anim = GetComponent<Animator>();
-        //player = GameObject.FindGameObjectWithTag("Player").transform;
-        //target = GameObject.FindGameObjectWithTag("Player").transform;
-
+        bullets = magazineSize;
 
     }
 
@@ -82,6 +70,9 @@ public class EnemyController : MonoBehaviour {
                 case States.dead:
                     Dead();
                     break;
+                case States.reload:
+                    Reload();
+                    break;
             }
         }
         else if (isControlled == true)
@@ -112,9 +103,8 @@ public class EnemyController : MonoBehaviour {
             // Health
             if (hitPoints <= 0)
             {
-                Instantiate(deathPrefab, transform.position, transform.rotation);
-                SoundManagerController.PlaySound("GoblinDeath");
-                Destroy(gameObject);
+                isControlled = false;
+                state = States.dead;
             }
 
             // My attack
@@ -122,7 +112,7 @@ public class EnemyController : MonoBehaviour {
             {
                 if (facingRight)
                 {
-                    float x2 = transform.position.x + 0.5f;
+                    float x2 = transform.position.x + attackRange;
                     float y2 = transform.position.y;
                     myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
                     myAttack.GetComponent<AttackController>().myEnemy = "Player";
@@ -130,7 +120,7 @@ public class EnemyController : MonoBehaviour {
                 }
                 if (!facingRight)
                 {
-                    float x2 = transform.position.x - 0.5f;
+                    float x2 = transform.position.x - attackRange;
                     float y2 = transform.position.y;
                     myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
                     myAttack.GetComponent<AttackController>().myEnemy = "Player";
@@ -238,6 +228,7 @@ public class EnemyController : MonoBehaviour {
         if (target && Vector2.Distance(transform.position, target.position) < attackRange) 
         {
 
+            // Melee attack
             if (!ranged && !myAttack)
             {
                 // Create attack
@@ -249,8 +240,10 @@ public class EnemyController : MonoBehaviour {
                     myAttack.GetComponent<SpriteRenderer>().flipX = true;
                 SoundManagerController.PlaySound("Swish");
             }
-            else if (ranged && timeSinceLastAttack <= 0)
+            // Ranged attack
+            else if (ranged && timeSinceLastAttack <= 0 && bullets > 0)
             {
+                bullets -= 1;
                 timeSinceLastAttack = attackSpeed;
                 float x2 = transform.position.x;
                 float y2 = transform.position.y;
@@ -258,7 +251,11 @@ public class EnemyController : MonoBehaviour {
                 myAttack.GetComponent<BulletController>().target = target;
                 SoundManagerController.PlaySound("Gun");
             }
-            
+            else if (ranged && bullets <= 0)
+            {
+                state = States.reload;
+                SoundManagerController.PlaySound("Reload");
+            }
 
         }
 
@@ -304,6 +301,37 @@ public class EnemyController : MonoBehaviour {
         //state = States.idle;
     }
 
+    // Reload state
+    private void Reload()
+    {
+
+        // Log
+        Debug.Log("My state is now reload");
+
+        // Reload done, go idle
+        if (ranged && bullets >= magazineSize)
+        {
+            state = States.idle;
+        }
+
+        // Reload
+        if (ranged && bullets <= 0)
+        {
+
+            if (timeSpentReloading < reloadTime)
+            {
+                timeSpentReloading += 1 * Time.deltaTime;
+            }
+            else
+            {
+                timeSpentReloading = 0;
+                bullets = magazineSize;
+            }
+
+        }
+
+    }
+
     // Flee from Otters, if they exist inside flee range
     private void Flee()
     {
@@ -324,9 +352,20 @@ public class EnemyController : MonoBehaviour {
     // Dead if dead
     private void Dead()
     {
+
+        // Tell GameController about death
+        //GameObject testi = GameObject.FindWithTag("GameController");
+        //testi.GetComponent<GameController>().minionsKilled += 1;
+
+        // Visual effect
         Instantiate(deathPrefab, transform.position, transform.rotation);
+
+        // Sound
         SoundManagerController.PlaySound("GoblinDeath");
+
+        // Destroy
         Destroy(gameObject);
+
     }
 
     // Find closest player
