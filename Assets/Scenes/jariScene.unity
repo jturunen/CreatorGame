@@ -918,7 +918,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8106c1903cd76e649a161db81ce3978c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  winOtters: {fileID: 1711269036286430, guid: d6305e5983c00b34f9a0585ceee35016, type: 2}
+  winOtters: {fileID: 1481564968486654, guid: d6305e5983c00b34f9a0585ceee35016, type: 2}
   winMobboss: {fileID: 1060151255224312, guid: 8d13a64b885b7874c8fd11f6d9a60f3b, type: 2}
   allMinionsSpawned: 0
   timeBetweenRounds: 3
@@ -1303,7 +1303,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1814292889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1378,7 +1378,7 @@ SpriteRenderer:
   m_Size: {x: 0.37, y: 0.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
 --- !u!1 &1844930873
 GameObject:

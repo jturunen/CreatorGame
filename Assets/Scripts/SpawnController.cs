@@ -23,8 +23,6 @@ public class SpawnController : MonoBehaviour {
 
     private List<GameObject> minionsFromPrefabs = new List<GameObject>(); // List for minions from prefabs
 
-    private static bool created = false;
-
     //Spawnpoint variables
     private List<Vector2> minimapSpawnPointPositions = new List<Vector2>(); //List for minimap spawnpoint positions
     private List<Vector2> levelSpawnPointPositions = new List<Vector2>(); //List for spawnpoint positions in the level
@@ -36,13 +34,10 @@ public class SpawnController : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        if (!created)
-        {
-            DontDestroyOnLoad(this.gameObject);
-            created = true;
-        }
-            // Get Minions folder as object.
-            Object[] subListObjects = Resources.LoadAll("Prefabs/Characters", typeof(GameObject));
+        DontDestroyOnLoad(this.gameObject);
+        
+        // Get Minions folder as object.
+        Object[] subListObjects = Resources.LoadAll("Prefabs/Characters", typeof(GameObject));
 
         // Get all minion prefabs from folder "Minions" and put to list
         foreach (GameObject subListObject in subListObjects)
@@ -98,8 +93,8 @@ public class SpawnController : MonoBehaviour {
         {
             if (SceneManager.GetActiveScene().name == "creatingPhaseScene")
             {
-                SceneManager.LoadScene("fightScene", LoadSceneMode.Single);
-            } else if (SceneManager.GetActiveScene().name == "fightScene")
+                SceneManager.LoadScene("jariScene", LoadSceneMode.Single);
+            } else if (SceneManager.GetActiveScene().name == "jariScene")
             {
                 SpawnUnitsToPoints();
             }

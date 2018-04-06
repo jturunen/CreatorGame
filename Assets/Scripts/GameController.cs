@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {
 
@@ -24,7 +25,10 @@ public class GameController : MonoBehaviour {
         // Restart scene
         if (Input.GetKeyDown (KeyCode.R))
         {
-            Application.LoadLevel(Application.loadedLevel);
+            //Application.LoadLevel(Application.loadedLevel);
+            //Destroy the spawn controller so that game can be restarted properly
+            GameObject.Destroy(GameObject.Find("SpawnController"));
+            SceneManager.LoadScene("creatingPhaseScene", LoadSceneMode.Single);
         }
 
     }
@@ -53,7 +57,11 @@ public class GameController : MonoBehaviour {
         // Handle time between rounds
         if (myWin && timeUntilNextRound <= 0)
         {
-            Application.LoadLevel(Application.loadedLevel);
+            //Application.LoadLevel(Application.loadedLevel);
+
+            GameObject.Destroy(GameObject.Find("SpawnController"));
+            SceneManager.LoadScene("creatingPhaseScene", LoadSceneMode.Single);
+
         }
         else if (myWin && timeUntilNextRound > 0)
         {

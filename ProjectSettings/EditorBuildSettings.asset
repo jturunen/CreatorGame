@@ -11,3 +11,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/fightScene.unity
     guid: 06c32f79bd036e24890cbef0da7403f5
+  - enabled: 1
+    path: Assets/Scenes/jariScene.unity
+    guid: 2ff45ab8f0c97d54d97c6b7644482227
