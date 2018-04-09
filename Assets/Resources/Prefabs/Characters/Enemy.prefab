@@ -214,8 +214,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myName: 
-  moveSpeed: 2
-  hitPoints: 1
+  moveSpeed: 3
+  hitPoints: 6
   attackSpeed: 0
   attackRange: 1
   fleeRange: 0

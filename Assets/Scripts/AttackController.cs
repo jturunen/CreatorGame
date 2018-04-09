@@ -33,6 +33,18 @@ public class AttackController : MonoBehaviour {
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+
+        if (other.gameObject.tag == "Player")
+        {
+            other.gameObject.GetComponent<PlayerController>().damageTaken += myDamage;
+        }
+
+        if (other.gameObject.tag == "Minion")
+        {
+            other.gameObject.GetComponent<EnemyController>().damageTaken += myDamage;
+        }
+
+        /*
         if (myEnemy == "Player" && other.gameObject.tag == "Player")
         {
             //Destroy(other.gameObject);
@@ -57,7 +69,7 @@ public class AttackController : MonoBehaviour {
             //Destroy(other.gameObject);
             other.gameObject.GetComponent<EnemyController>().damageTaken += myDamage;
         }
-
+        */
     }
 
 }

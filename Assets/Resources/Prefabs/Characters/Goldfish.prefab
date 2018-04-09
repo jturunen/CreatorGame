@@ -185,13 +185,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myName: 
   moveSpeed: 2
-  hitPoints: 2
+  hitPoints: 5
   attackSpeed: 0.1
-  attackRange: 4
+  attackRange: 5
   fleeRange: 0
   damageTaken: 0
-  magazineSize: 10
-  reloadTime: 3
+  magazineSize: 12
+  reloadTime: 2
   isControlled: 0
   ranged: 1
   attackPrefab: {fileID: 1617936150534346, guid: 540ae985d838dc44ca8fc7d678acffcb,

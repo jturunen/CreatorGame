@@ -29,9 +29,10 @@ public class PlayerController : MonoBehaviour {
     private float dodgeDistanceNow; // Distance dodge rolled so far
     private bool facingRight = true; // Is the character facing right?
     private bool flashActive;  // Is the hitflash active?   
-    private bool attackDone; // Did character already do attack in attack state?
+    private bool attackDone = false; // Did character already do attack in attack state?
     private bool dodgeStarted; // Dodge roll started yet?
     private bool buttonAttack; // Attack button being pressed?
+    private bool buttonDodge; // Dodge button pressed?
     private enum States { idle, move, attack, flee, dead, dodge, win }; // Enum for state machine
     private States state = States.idle; // State
     private GameObject myAttack; // Characters current attack, default should be null
@@ -46,7 +47,7 @@ public class PlayerController : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-
+        //Debug.Log(state);
         //this.transform.Translate(0, 1 * Time.deltaTime, 0, Space.World);
         //transform.Rotate(0, 0, Time.deltaTime * -10000);
 
@@ -94,10 +95,7 @@ public class PlayerController : MonoBehaviour {
         {
             state = States.win;
         }
-        */
-
-        
-        
+        */     
 
     }
 
@@ -108,31 +106,39 @@ public class PlayerController : MonoBehaviour {
         {
 
             case 1:
-                moveHorizontal = Input.GetAxis("Horizontal");
-                moveVertical = Input.GetAxis("Vertical");
-                //buttonAttack = Input.GetKey(KeyCode.F);
-                buttonAttack = Input.GetButtonDown("Fire1_P1");
+                
+                moveHorizontal = Input.GetAxis("Keyboard Horizontal 1");
+                moveVertical = Input.GetAxis("Keyboard Vertical 1");
+                buttonAttack = Input.GetButtonDown("Keyboard Attack 1");
+                buttonDodge = Input.GetButtonDown("Keyboard Dodge 1");
+                /*
+                moveHorizontal = Input.GetAxis("Gamepad Horizontal 1");
+                moveVertical = Input.GetAxis("Gamepad Vertical 1");
+                buttonAttack = Input.GetButtonDown("Gamepad Attack 1");
+                buttonDodge = Input.GetButtonDown("Gamepad Dodge 1");
+                */
                 break;
 
             case 2:
-                moveHorizontal = Input.GetAxis("Horizontal_P2");
-                moveVertical = Input.GetAxis("Vertical_P2");
+                moveHorizontal = Input.GetAxis("Gamepad Horizontal 2");
+                moveVertical = Input.GetAxis("Gamepad Vertical 2");
+                buttonAttack = Input.GetButtonDown("Gamepad Attack 2");
+                buttonDodge = Input.GetButtonDown("Gamepad Dodge 2");
                 break;
 
             case 3:
-                moveHorizontal = Input.GetAxis("Horizontal_P3");
-                moveVertical = Input.GetAxis("Vertical_P3");
+                moveHorizontal = Input.GetAxis("Gamepad Horizontal 3");
+                moveVertical = Input.GetAxis("Gamepad Vertical 3");
+                buttonDodge = Input.GetButtonDown("Gamepad Dodge 3");
+                buttonAttack = Input.GetButtonDown("Gamepad Attack 3");
                 break;
 
             case 4:
                 moveHorizontal = Input.GetAxis("Horizontal_P4");
                 moveVertical = Input.GetAxis("Vertical_P4");
                 break;
-
-
-        }
-
-            
+                
+        }           
 
     }
 
@@ -145,18 +151,21 @@ public class PlayerController : MonoBehaviour {
 
         // Triggers
         #region Trigger
-
+        
         // User inputs to move
-        if (moveHorizontal != 0f || moveVertical != 0f)
+        if (moveHorizontal != 0f || moveVertical != 0f )
         {
+            Debug.Log("Move button pressed");
             state = States.move;
             anim.SetBool("Idle", false);
             anim.SetBool("Walk", true);
         }
 
         // User input to attack
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (buttonAttack)
         {
+            Debug.Log("Attack button pressed");
+            attackDone = false;
             state = States.attack;
             anim.SetBool("Idle", false);
             anim.SetBool("Attack", true);
@@ -189,15 +198,16 @@ public class PlayerController : MonoBehaviour {
         }
 
         // User inputs attack
-        if (Input.GetKeyDown(KeyCode.Space) || buttonAttack)
+        if (buttonAttack)
         {
+            attackDone = false;
             state = States.attack;
             anim.SetBool("Walk", false);
             anim.SetBool("Attack", true);          
         }
 
         // Dodge
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (buttonDodge)
         {
             state = States.dodge;
             anim.SetBool("Walk", false);
@@ -250,22 +260,23 @@ public class PlayerController : MonoBehaviour {
 
         // Triggers
         #region Triggers
-        
+        //Debug.Log(myAttack);
+        //Debug.Log(attackDone);
         // Go idle when attack is done
-        if (!myAttack && attackDone)
+        if (attackDone)
         {
             attackDone = false;
             state = States.idle;
             anim.SetBool("Attack", false);
             anim.SetBool("Idle", true);
         }
-        
+
         #endregion Triggers
 
         #region Behaviour
 
         // Create attack prefab left or right
-        if (!myAttack && !attackDone && (Input.GetButton("Fire1") || Input.GetButton("Fire1_P1")))
+        if (!myAttack && !attackDone)
         //if (!attackDone && !myAttack)
         {
             if (facingRight)

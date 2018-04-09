@@ -80,8 +80,8 @@ public class EnemyController : MonoBehaviour {
             // Movement
             if (!myAttack)
             {              
-                float moveHorizontal = Input.GetAxisRaw("Horizontal2");
-                float moveVertical = Input.GetAxisRaw("Vertical2");
+                float moveHorizontal = Input.GetAxisRaw("Keyboard Horizontal 2");
+                float moveVertical = Input.GetAxisRaw("Keyboard Vertical 2");
                 transform.Translate(new Vector3(moveHorizontal, moveVertical) * moveSpeed * Time.deltaTime * 3);
 
                 if (moveHorizontal > 0 && !facingRight)
@@ -108,7 +108,7 @@ public class EnemyController : MonoBehaviour {
             }
 
             // My attack
-            if (Input.GetButton("Fire2") && !myAttack)
+            if (Input.GetButton("Keyboard Attack 2") && !myAttack)
             {
                 if (facingRight)
                 {
