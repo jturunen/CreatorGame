@@ -17,11 +17,15 @@ public class SpawnController : MonoBehaviour {
     private bool minionSpawning = false; //Check to prevent multiple minion spawns
 
     public float spawnRate = 0.5F; // How fast can be minions put to list (spawned to list)
-    private float nextSpawn = 0.0F; 
+    private float nextSpawn = 0.0F;
+
+    public GameObject spawner;
 
     private List<GameObject> chosenMinionsList = null; //List where chosen minions are put
 
     private List<GameObject> minionsFromPrefabs = new List<GameObject>(); // List for minions from prefabs
+
+    public float waitTime = 1; // Time before the minions spawn
 
     //Spawnpoint variables
     private List<Vector2> minimapSpawnPointPositions = new List<Vector2>(); //List for minimap spawnpoint positions
@@ -29,6 +33,7 @@ public class SpawnController : MonoBehaviour {
     public GameObject spawnPointPrefab; //Prefab for spawnpoint
     private GameObject spawnPointObject; //Temporary spawnpoint object to name it on instantiate
     private GameObject spawnPointToFind; //Temporary spawnpoint object to find it on scene
+
 
     #endregion
 
@@ -55,7 +60,7 @@ public class SpawnController : MonoBehaviour {
         chosenMinionsList = new List<GameObject>();
 
         //Set first spawnpoint color to be next used.
-        changeSpawnPointColor(toUsed: false);
+        changeSpawnPointColor(false);
     }
 
     // Update is called once per frame
@@ -93,12 +98,18 @@ public class SpawnController : MonoBehaviour {
         {
             if (SceneManager.GetActiveScene().name == "creatingPhaseScene")
             {
+
+                
                 SceneManager.LoadScene("jariScene", LoadSceneMode.Single);
+                
             } else if (SceneManager.GetActiveScene().name == "jariScene")
             {
-                SpawnUnitsToPoints();
+                waitTime -= Time.deltaTime;
+                if (waitTime < 0)
+                {
+                    SpawnUnitsToPoints();
+                }
             }
-
         }
     }
 
@@ -108,12 +119,12 @@ public class SpawnController : MonoBehaviour {
         //Add chosen enemy to list.
         chosenMinionsList.Add(chosenEnemy);
         //Change "current" spawnpoint to used
-        changeSpawnPointColor(toUsed: true);
+        changeSpawnPointColor(true);
         currentMinionCount++;
         //Change next spawnpoint to be current
         if (currentMinionCount < maxMinions)
         {
-            changeSpawnPointColor(toUsed: false);
+            changeSpawnPointColor(false);
         }
     }
 
@@ -123,8 +134,13 @@ public class SpawnController : MonoBehaviour {
         //go throught the list, and instantiate to them to the spawning point
         for (int i = 0; i < chosenMinionsList.Count; i++)
         {
+            //Spawn spawner points
+            (Instantiate(spawner, levelSpawnPointPositions[i], Quaternion.identity) as GameObject).GetComponent<SpawnerController>().setMinion(chosenMinionsList[i]);
 
-            GameObject minion = chosenMinionsList[i];
+
+            // --------------spawn only one mob per point-------------------------------
+
+            /*GameObject minion = chosenMinionsList[i];
             EnemyController c = minion.GetComponent<EnemyController>();
 
             if (minion.name == "Enemy")
@@ -140,7 +156,7 @@ public class SpawnController : MonoBehaviour {
             {
                 c.isControlled = false;
                 Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
-            }
+            }*/
 
         }
         //Enable minionSpawning so to prevent update to spawn enemies multiple times
@@ -154,8 +170,10 @@ public class SpawnController : MonoBehaviour {
         SpriteRenderer spawnPointSprite = spawnPointToFind.GetComponent<SpriteRenderer>();
         if (toUsed)
         {
-            //Change to used, (black)
-            spawnPointSprite.color = new Color(0f, 0f, 0f, 1f);
+            //Change to chosen sprite minion, (and back to white)
+            spawnPointSprite.color = new Color(1f, 1f, 1f, 1f);
+            //Find the chosen minion from the list and get its sprite
+            spawnPointSprite.sprite = chosenMinionsList[currentMinionCount].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
         } else
         {
             //Change to next, (red)
@@ -167,9 +185,9 @@ public class SpawnController : MonoBehaviour {
     private void createSpawnPoints()
     {
         //Creating list for minimap spawnpoints (Temporary solution)
-        minimapSpawnPointPositions.Add(new Vector2(-7.5f, -3));
+        minimapSpawnPointPositions.Add(new Vector2(-7.5f, -2.5f));
         // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -2));
-        minimapSpawnPointPositions.Add(new Vector2(-2.5f, -3));
+        minimapSpawnPointPositions.Add(new Vector2(-2.5f, -2.5f));
         minimapSpawnPointPositions.Add(new Vector2(-7.5f, -4));
         // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -4));
         minimapSpawnPointPositions.Add(new Vector2(-2.5f, -4));

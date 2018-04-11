@@ -9,30 +9,30 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1763411406668468}
+  m_RootGameObject: {fileID: 1106442564481132}
   m_IsPrefabParent: 1
---- !u!1 &1763411406668468
+--- !u!1 &1106442564481132
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4435106261712430}
-  - component: {fileID: 114680007514340344}
+  - component: {fileID: 4458067268314696}
+  - component: {fileID: 114589720877126324}
   m_Layer: 0
-  m_Name: SpawnController
+  m_Name: Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4435106261712430
+--- !u!4 &4458067268314696
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1763411406668468}
+  m_GameObject: {fileID: 1106442564481132}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -40,20 +40,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114680007514340344
+--- !u!114 &114589720877126324
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1763411406668468}
+  m_GameObject: {fileID: 1106442564481132}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de3b1321bc134274c85a2279e2aef357, type: 3}
+  m_Script: {fileID: 11500000, guid: 12a534b4e5148ae4a852d4cfd9d5e850, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxMinions: 4
-  spawnRate: 0.25
-  spawner: {fileID: 1106442564481132, guid: 169dbf1f03f6c4b408dfa50234cdecd3, type: 2}
-  waitTime: 1
-  spawnPointPrefab: {fileID: 1120982450915122, guid: 2edc77e2d93b83f4b91718e7277dd1a5,
+  chosenMinion: {fileID: 1688664223905400, guid: 05f5a24a347abdd41b0fc7b345098a38,
     type: 2}
+  trashySpawnRate: 3
+  goldfishSpawnRate: 7
+  bigsySpawnRate: 12
+  trashyMaxSpawns: 3
+  goldfishMaxSpawns: 2
+  bigsyMaxSpawns: 1
+  maxSpawns: 5
+  spawnRate: 3
