@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {
 
+    public int minionIndex = 0; // Index for minion naming
+
     public GameObject winOtters;
     public GameObject winMobboss;
     public bool allMinionsSpawned;

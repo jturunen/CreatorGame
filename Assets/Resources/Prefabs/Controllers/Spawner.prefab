@@ -53,11 +53,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chosenMinion: {fileID: 1688664223905400, guid: 05f5a24a347abdd41b0fc7b345098a38,
     type: 2}
-  trashySpawnRate: 3
+  trashySpawnRate: 1
   goldfishSpawnRate: 7
   bigsySpawnRate: 12
   trashyMaxSpawns: 3
   goldfishMaxSpawns: 2
   bigsyMaxSpawns: 1
-  maxSpawns: 5
   spawnRate: 3

@@ -11,6 +11,9 @@ public class SpawnController : MonoBehaviour {
     * Then for example, when players enter room, go through list and spawn monsters then.
     */
     #region Variables
+
+    public bool SpawnerMode = true; //For testing, disable or activate spawnermode
+
     public int maxMinions = 0; //How many units can be spawned to map
 
     private int currentMinionCount = 0; // Which minion(count) is currently being used 
@@ -18,8 +21,9 @@ public class SpawnController : MonoBehaviour {
 
     public float spawnRate = 0.5F; // How fast can be minions put to list (spawned to list)
     private float nextSpawn = 0.0F;
+    private bool fighting = false; // Has creating phase ended an d fighting begun
 
-    public GameObject spawner;
+    public GameObject spawner; // Prefab for spawner point
 
     private List<GameObject> chosenMinionsList = null; //List where chosen minions are put
 
@@ -66,7 +70,7 @@ public class SpawnController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if (currentMinionCount <= maxMinions && Time.time > nextSpawn) {
+        if (currentMinionCount <= maxMinions && Time.time > nextSpawn && !fighting) {
             //TODO: change buttons to Fire1 etc. after the 4th controller 
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
@@ -98,11 +102,10 @@ public class SpawnController : MonoBehaviour {
         {
             if (SceneManager.GetActiveScene().name == "creatingPhaseScene")
             {
-
-                
                 SceneManager.LoadScene("jariScene", LoadSceneMode.Single);
-                
-            } else if (SceneManager.GetActiveScene().name == "jariScene")
+                fighting = true; //Creating phase is over, start fighting
+            }
+            else if (SceneManager.GetActiveScene().name == "jariScene")
             {
                 waitTime -= Time.deltaTime;
                 if (waitTime < 0)
@@ -131,33 +134,35 @@ public class SpawnController : MonoBehaviour {
     //This is activated when the camera moves to the fight phase.
     private void SpawnUnitsToPoints()
     {
-        //go throught the list, and instantiate to them to the spawning point
+        //go throught the list, and instantiate to the spawning point
         for (int i = 0; i < chosenMinionsList.Count; i++)
         {
-            //Spawn spawner points
-            (Instantiate(spawner, levelSpawnPointPositions[i], Quaternion.identity) as GameObject).GetComponent<SpawnerController>().setMinion(chosenMinionsList[i]);
-
-
-            // --------------spawn only one mob per point-------------------------------
-
-            /*GameObject minion = chosenMinionsList[i];
-            EnemyController c = minion.GetComponent<EnemyController>();
-
-            if (minion.name == "Enemy")
+            if(SpawnerMode)
             {
-                Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
-            }
-            if (i ==3)
-            {
-                c.isControlled = true;
-                Instantiate(minion, levelSpawnPointPositions[i], Quaternion.identity);
-
+                //Spawn spawner points
+                (Instantiate(spawner, levelSpawnPointPositions[i], Quaternion.identity) as GameObject).GetComponent<SpawnerController>().setMinion(chosenMinionsList[i]);
             } else
             {
-                c.isControlled = false;
-                Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
-            }*/
+                // --------------spawn only one mob per point-------------------------------
+                GameObject minion = chosenMinionsList[i];
+                EnemyController c = minion.GetComponent<EnemyController>();
 
+                if (minion.name == "Enemy")
+                {
+                    Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
+                }
+                if (i == 3)
+                {
+                    c.isControlled = true;
+                    Instantiate(minion, levelSpawnPointPositions[i], Quaternion.identity);
+
+                }
+                else
+                {
+                    c.isControlled = false;
+                    Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
+                }
+            }
         }
         //Enable minionSpawning so to prevent update to spawn enemies multiple times
         minionSpawning = true;
