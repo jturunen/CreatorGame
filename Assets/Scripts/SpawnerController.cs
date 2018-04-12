@@ -43,9 +43,7 @@ public class SpawnerController : MonoBehaviour {
         {
             nextSpawn = Time.time + spawnRate;
             //Spawn the minion to the spawnpoint position, and name it with index number from the gameController
-            //(Instantiate(chosenMinion, transform.position, Quaternion.identity) as GameObject).GetComponent<EnemyController>().myName = gameController.minionIndex.ToString();
             (Instantiate(chosenMinion, transform.position, Quaternion.identity) as GameObject).name += gameController.minionIndex.ToString();
-
             //Add one to index
             gameController.minionIndex++;
             //Reduce one maxSpawns
@@ -57,13 +55,17 @@ public class SpawnerController : MonoBehaviour {
     {
         if (noControl)
         {
+            //find first spawned minion
+            Debug.Log(noControl);
             GameObject minionToControl = GameObject.Find(chosenMinion.name +"(Clone)0");
-            if(minionToControl != null)
+            Debug.Log(minionToControl);
+
+            if (minionToControl != null)
             {
                 minionToControl.GetComponent<EnemyController>().isControlled = true;
             }
             //Toggle
-            noControl = !noControl;
+            noControl = false;
         }
     }
 

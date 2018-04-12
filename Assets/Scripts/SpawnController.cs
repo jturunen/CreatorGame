@@ -12,6 +12,8 @@ public class SpawnController : MonoBehaviour {
     */
     #region Variables
 
+    public float spawnerMinX, spawnerMinY, spawnerMaxX, spawnerMaxY;
+
     public bool SpawnerMode = true; //For testing, disable or activate spawnermode
 
     public int maxMinions = 0; //How many units can be spawned to map
@@ -30,6 +32,8 @@ public class SpawnController : MonoBehaviour {
     private List<GameObject> minionsFromPrefabs = new List<GameObject>(); // List for minions from prefabs
 
     public float waitTime = 1; // Time before the minions spawn
+
+    private List<GameObject> spawnPointObjectList = new List<GameObject>(); //Store spawnpoints so that they can be found when inactivated
 
     //Spawnpoint variables
     private List<Vector2> minimapSpawnPointPositions = new List<Vector2>(); //List for minimap spawnpoint positions
@@ -62,9 +66,6 @@ public class SpawnController : MonoBehaviour {
 
         //Initialize list for minions that will be chosen to the level
         chosenMinionsList = new List<GameObject>();
-
-        //Set first spawnpoint color to be next used.
-        changeSpawnPointColor(false);
     }
 
     // Update is called once per frame
@@ -75,14 +76,17 @@ public class SpawnController : MonoBehaviour {
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[0]);
+                SoundManagerController.PlaySound("Hit");
             }
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[1]);
+                SoundManagerController.PlaySound("Hit");
             }
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[2]);
+                SoundManagerController.PlaySound("Reload");
             }
             /*if (Input.GetKeyDown(KeyCode.DownArrow))
             {
@@ -171,18 +175,22 @@ public class SpawnController : MonoBehaviour {
     private void changeSpawnPointColor(bool toUsed)
     {
         //Find current spawnpoint from the scene and access its sprite
-        spawnPointToFind = GameObject.Find("SpawnPoint" + currentMinionCount);
+        //spawnPointToFind = GameObject.Find("SpawnPoint" + currentMinionCount);
+        spawnPointToFind = spawnPointObjectList[currentMinionCount];
         SpriteRenderer spawnPointSprite = spawnPointToFind.GetComponent<SpriteRenderer>();
         if (toUsed)
         {
+            Animator spawnPointAnimator = spawnPointToFind.GetComponent<Animator>();
+            spawnPointAnimator.enabled = false;
             //Change to chosen sprite minion, (and back to white)
             spawnPointSprite.color = new Color(1f, 1f, 1f, 1f);
             //Find the chosen minion from the list and get its sprite
             spawnPointSprite.sprite = chosenMinionsList[currentMinionCount].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
         } else
         {
+            spawnPointToFind.SetActive(true);
             //Change to next, (red)
-            spawnPointSprite.color = new Color(1f, 0.5f, 0.5f, 1f);
+            spawnPointSprite.color = new Color(1f, 0f, 0f, 1f);
         }
 
     }
@@ -198,12 +206,12 @@ public class SpawnController : MonoBehaviour {
         minimapSpawnPointPositions.Add(new Vector2(-2.5f, -4));
 
         //Creating list for spawnpoints on the level (where chosen minions will be spawned) (Temporary solution)
-        levelSpawnPointPositions.Add(new Vector2(-6, 0));
+        levelSpawnPointPositions.Add(new Vector2(spawnerMinX, spawnerMaxY));
         // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -2));
-        levelSpawnPointPositions.Add(new Vector2(6, 0));
-        levelSpawnPointPositions.Add(new Vector2(-6, -4));
+        levelSpawnPointPositions.Add(new Vector2(spawnerMaxX, spawnerMaxY));
+        levelSpawnPointPositions.Add(new Vector2(spawnerMinX, spawnerMinY));
         // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -4));
-        levelSpawnPointPositions.Add(new Vector2(6, -4));
+        levelSpawnPointPositions.Add(new Vector2(spawnerMaxX, spawnerMinY));
 
         //Go through given coordiatens and instatiate a spawnpoint to that location
         for (int i = 0; i < maxMinions; i++)
@@ -211,9 +219,16 @@ public class SpawnController : MonoBehaviour {
             spawnPointObject = Instantiate(spawnPointPrefab, minimapSpawnPointPositions[i], Quaternion.identity);
             //give spawnpoint a name with the number, to indentify
             spawnPointObject.name = "SpawnPoint" + i;
+            spawnPointObjectList.Add(spawnPointObject);
+            if (i > 0)
+            {
+                spawnPointObject.SetActive(false);
+            }
             //Debug.Log("Created SPAWNPOINT: " + i);
 
         }
+        //Set first spawnpoint color to be next used.
+        changeSpawnPointColor(false);
     }
 
 
