@@ -11,17 +11,29 @@ public class SpawnController : MonoBehaviour {
     * Then for example, when players enter room, go through list and spawn monsters then.
     */
     #region Variables
+
+    public float spawnerMinX, spawnerMinY, spawnerMaxX, spawnerMaxY;
+
+    public bool SpawnerMode = true; //For testing, disable or activate spawnermode
+
     public int maxMinions = 0; //How many units can be spawned to map
 
     private int currentMinionCount = 0; // Which minion(count) is currently being used 
     private bool minionSpawning = false; //Check to prevent multiple minion spawns
 
     public float spawnRate = 0.5F; // How fast can be minions put to list (spawned to list)
-    private float nextSpawn = 0.0F; 
+    private float nextSpawn = 0.0F;
+    private bool fighting = false; // Has creating phase ended an d fighting begun
+
+    public GameObject spawner; // Prefab for spawner point
 
     private List<GameObject> chosenMinionsList = null; //List where chosen minions are put
 
     private List<GameObject> minionsFromPrefabs = new List<GameObject>(); // List for minions from prefabs
+
+    public float waitTime = 1; // Time before the minions spawn
+
+    private List<GameObject> spawnPointObjectList = new List<GameObject>(); //Store spawnpoints so that they can be found when inactivated
 
     //Spawnpoint variables
     private List<Vector2> minimapSpawnPointPositions = new List<Vector2>(); //List for minimap spawnpoint positions
@@ -29,6 +41,7 @@ public class SpawnController : MonoBehaviour {
     public GameObject spawnPointPrefab; //Prefab for spawnpoint
     private GameObject spawnPointObject; //Temporary spawnpoint object to name it on instantiate
     private GameObject spawnPointToFind; //Temporary spawnpoint object to find it on scene
+
 
     #endregion
 
@@ -53,27 +66,27 @@ public class SpawnController : MonoBehaviour {
 
         //Initialize list for minions that will be chosen to the level
         chosenMinionsList = new List<GameObject>();
-
-        //Set first spawnpoint color to be next used.
-        changeSpawnPointColor(toUsed: false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (currentMinionCount <= maxMinions && Time.time > nextSpawn) {
+        if (currentMinionCount <= maxMinions && Time.time > nextSpawn && !fighting) {
             //TODO: change buttons to Fire1 etc. after the 4th controller 
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[0]);
+                SoundManagerController.PlaySound("Hit");
             }
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[1]);
+                SoundManagerController.PlaySound("Hit");
             }
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[2]);
+                SoundManagerController.PlaySound("Reload");
             }
             /*if (Input.GetKeyDown(KeyCode.DownArrow))
             {
@@ -94,11 +107,16 @@ public class SpawnController : MonoBehaviour {
             if (SceneManager.GetActiveScene().name == "creatingPhaseScene")
             {
                 SceneManager.LoadScene("jariScene", LoadSceneMode.Single);
-            } else if (SceneManager.GetActiveScene().name == "jariScene")
-            {
-                SpawnUnitsToPoints();
+                fighting = true; //Creating phase is over, start fighting
             }
-
+            else if (SceneManager.GetActiveScene().name == "jariScene")
+            {
+                waitTime -= Time.deltaTime;
+                if (waitTime < 0)
+                {
+                    SpawnUnitsToPoints();
+                }
+            }
         }
     }
 
@@ -108,40 +126,47 @@ public class SpawnController : MonoBehaviour {
         //Add chosen enemy to list.
         chosenMinionsList.Add(chosenEnemy);
         //Change "current" spawnpoint to used
-        changeSpawnPointColor(toUsed: true);
+        changeSpawnPointColor(true);
         currentMinionCount++;
         //Change next spawnpoint to be current
         if (currentMinionCount < maxMinions)
         {
-            changeSpawnPointColor(toUsed: false);
+            changeSpawnPointColor(false);
         }
     }
 
     //This is activated when the camera moves to the fight phase.
     private void SpawnUnitsToPoints()
     {
-        //go throught the list, and instantiate to them to the spawning point
+        //go throught the list, and instantiate to the spawning point
         for (int i = 0; i < chosenMinionsList.Count; i++)
         {
-
-            GameObject minion = chosenMinionsList[i];
-            EnemyController c = minion.GetComponent<EnemyController>();
-
-            if (minion.name == "Enemy")
+            if(SpawnerMode)
             {
-                Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
-            }
-            if (i ==3)
-            {
-                c.isControlled = true;
-                Instantiate(minion, levelSpawnPointPositions[i], Quaternion.identity);
-
+                //Spawn spawner points
+                (Instantiate(spawner, levelSpawnPointPositions[i], Quaternion.identity) as GameObject).GetComponent<SpawnerController>().setMinion(chosenMinionsList[i]);
             } else
             {
-                c.isControlled = false;
-                Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
-            }
+                // --------------spawn only one mob per point-------------------------------
+                GameObject minion = chosenMinionsList[i];
+                EnemyController c = minion.GetComponent<EnemyController>();
 
+                if (minion.name == "Enemy")
+                {
+                    Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
+                }
+                if (i == 3)
+                {
+                    c.isControlled = true;
+                    Instantiate(minion, levelSpawnPointPositions[i], Quaternion.identity);
+
+                }
+                else
+                {
+                    c.isControlled = false;
+                    Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
+                }
+            }
         }
         //Enable minionSpawning so to prevent update to spawn enemies multiple times
         minionSpawning = true;
@@ -150,16 +175,22 @@ public class SpawnController : MonoBehaviour {
     private void changeSpawnPointColor(bool toUsed)
     {
         //Find current spawnpoint from the scene and access its sprite
-        spawnPointToFind = GameObject.Find("SpawnPoint" + currentMinionCount);
+        //spawnPointToFind = GameObject.Find("SpawnPoint" + currentMinionCount);
+        spawnPointToFind = spawnPointObjectList[currentMinionCount];
         SpriteRenderer spawnPointSprite = spawnPointToFind.GetComponent<SpriteRenderer>();
         if (toUsed)
         {
-            //Change to used, (black)
-            spawnPointSprite.color = new Color(0f, 0f, 0f, 1f);
+            Animator spawnPointAnimator = spawnPointToFind.GetComponent<Animator>();
+            spawnPointAnimator.enabled = false;
+            //Change to chosen sprite minion, (and back to white)
+            spawnPointSprite.color = new Color(1f, 1f, 1f, 1f);
+            //Find the chosen minion from the list and get its sprite
+            spawnPointSprite.sprite = chosenMinionsList[currentMinionCount].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
         } else
         {
+            spawnPointToFind.SetActive(true);
             //Change to next, (red)
-            spawnPointSprite.color = new Color(1f, 0.5f, 0.5f, 1f);
+            spawnPointSprite.color = new Color(1f, 0f, 0f, 1f);
         }
 
     }
@@ -167,20 +198,20 @@ public class SpawnController : MonoBehaviour {
     private void createSpawnPoints()
     {
         //Creating list for minimap spawnpoints (Temporary solution)
-        minimapSpawnPointPositions.Add(new Vector2(-7.5f, -3));
+        minimapSpawnPointPositions.Add(new Vector2(-7.5f, -2.5f));
         // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -2));
-        minimapSpawnPointPositions.Add(new Vector2(-2.5f, -3));
+        minimapSpawnPointPositions.Add(new Vector2(-2.5f, -2.5f));
         minimapSpawnPointPositions.Add(new Vector2(-7.5f, -4));
         // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -4));
         minimapSpawnPointPositions.Add(new Vector2(-2.5f, -4));
 
         //Creating list for spawnpoints on the level (where chosen minions will be spawned) (Temporary solution)
-        levelSpawnPointPositions.Add(new Vector2(-6, 0));
+        levelSpawnPointPositions.Add(new Vector2(spawnerMinX, spawnerMaxY));
         // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -2));
-        levelSpawnPointPositions.Add(new Vector2(6, 0));
-        levelSpawnPointPositions.Add(new Vector2(-6, -4));
+        levelSpawnPointPositions.Add(new Vector2(spawnerMaxX, spawnerMaxY));
+        levelSpawnPointPositions.Add(new Vector2(spawnerMinX, spawnerMinY));
         // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -4));
-        levelSpawnPointPositions.Add(new Vector2(6, -4));
+        levelSpawnPointPositions.Add(new Vector2(spawnerMaxX, spawnerMinY));
 
         //Go through given coordiatens and instatiate a spawnpoint to that location
         for (int i = 0; i < maxMinions; i++)
@@ -188,9 +219,16 @@ public class SpawnController : MonoBehaviour {
             spawnPointObject = Instantiate(spawnPointPrefab, minimapSpawnPointPositions[i], Quaternion.identity);
             //give spawnpoint a name with the number, to indentify
             spawnPointObject.name = "SpawnPoint" + i;
+            spawnPointObjectList.Add(spawnPointObject);
+            if (i > 0)
+            {
+                spawnPointObject.SetActive(false);
+            }
             //Debug.Log("Created SPAWNPOINT: " + i);
 
         }
+        //Set first spawnpoint color to be next used.
+        changeSpawnPointColor(false);
     }
 
 
