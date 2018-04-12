@@ -6,7 +6,8 @@ public class SoundManagerController : MonoBehaviour {
 
     public static AudioClip mainMusic, goblinDieSound1, goblinDieSound2, goblinDieSound3,
         goblinDieSound4, goblinDieSound5, goblinDieSound6, goblinDieSound7, swish1, swish2, swish3, gun,
-        hit1, hit2, hit3, hit4, hit5, woahLong, woah1, woah2, woah3, woah4, woah5, pumpReload2;
+        hit1, hit2, hit3, hit4, hit5, woahLong, woah1, woah2, woah3, woah4, woah5, pumpReload2, explosion1,
+        fart1, fart2, fart3;
     static AudioSource audioSrc;
     public bool playMusic;
 
@@ -37,6 +38,12 @@ public class SoundManagerController : MonoBehaviour {
         gun = Resources.Load<AudioClip>("chaingun");
 
         pumpReload2 = Resources.Load<AudioClip>("pumpReload2");
+
+        explosion1 = Resources.Load<AudioClip>("explosion1");
+
+        fart1 = Resources.Load<AudioClip>("fart1");
+        fart2 = Resources.Load<AudioClip>("fart2");
+        fart3 = Resources.Load<AudioClip>("fart3");
 
         woahLong = Resources.Load<AudioClip>("woahLong");
         woah1 = Resources.Load<AudioClip>("woah1");
@@ -131,10 +138,36 @@ public class SoundManagerController : MonoBehaviour {
 
                 break;
 
+            case "Fart":
+
+                int ifart = Random.Range(1, 4);
+
+                switch (ifart)
+                {
+                    case 1:
+                        audioSrc.PlayOneShot(fart1);
+                        break;
+                    case 2:
+                        audioSrc.PlayOneShot(fart2);
+                        break;
+                    case 3:
+                        audioSrc.PlayOneShot(fart3);
+                        break;
+                }
+
+                break;
+
+                
             case "Gun":
                 audioSrc.PlayOneShot(gun);
                 break;
 
+            case "Explosion":
+                audioSrc.PlayOneShot(explosion1);
+                break;
+
+            
+                
             case "Hit":
 
                 int ihit = Random.Range(1, 4);

@@ -8,6 +8,7 @@ public class GameController : MonoBehaviour {
     public GameObject winOtters;
     public GameObject winMobboss;
     public bool allMinionsSpawned;
+    public bool testMode; // Test mode for spawning?
     public float timeBetweenRounds;
 
     private GameObject myWin;
@@ -25,10 +26,18 @@ public class GameController : MonoBehaviour {
         // Restart scene
         if (Input.GetKeyDown (KeyCode.R))
         {
-            //Application.LoadLevel(Application.loadedLevel);
-            //Destroy the spawn controller so that game can be restarted properly
-            GameObject.Destroy(GameObject.Find("SpawnController"));
-            SceneManager.LoadScene("creatingPhaseScene", LoadSceneMode.Single);
+
+            if (testMode)
+            {
+                Application.LoadLevel(Application.loadedLevel);
+            }
+            else
+            {
+                //Destroy the spawn controller so that game can be restarted properly
+                GameObject.Destroy(GameObject.Find("SpawnController"));
+                SceneManager.LoadScene("creatingPhaseScene", LoadSceneMode.Single);
+            }         
+            
         }
 
     }
@@ -57,10 +66,16 @@ public class GameController : MonoBehaviour {
         // Handle time between rounds
         if (myWin && timeUntilNextRound <= 0)
         {
-            //Application.LoadLevel(Application.loadedLevel);
 
-            GameObject.Destroy(GameObject.Find("SpawnController"));
-            SceneManager.LoadScene("creatingPhaseScene", LoadSceneMode.Single);
+            if(testMode)
+            {
+                Application.LoadLevel(Application.loadedLevel);
+            }
+            else
+            {
+                GameObject.Destroy(GameObject.Find("SpawnController"));
+                SceneManager.LoadScene("creatingPhaseScene", LoadSceneMode.Single);
+            }
 
         }
         else if (myWin && timeUntilNextRound > 0)
@@ -69,5 +84,5 @@ public class GameController : MonoBehaviour {
         }
 
     }
-
+    
 }

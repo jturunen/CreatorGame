@@ -6,7 +6,8 @@ public class BulletController : MonoBehaviour
     public Transform target;
     public float moveSpeed = 0;
     public float lifetime = 0f; // How long the attack will last
-    public float myDamage = 1f; // How much damage to deal
+    public float damage; // How much damage to deal
+    public float accuracy; // Accuracy how well the bullet travels 
 
     //Vector2 point = new Vector2();
     private Vector2 point;
@@ -15,7 +16,9 @@ public class BulletController : MonoBehaviour
     void Start()
     {
         //point = target.position;
-        point = new Vector2(target.position.x, target.position.y);
+        float testi = accuracy - 100;
+        testi = Random.Range(-testi, testi);
+        point = new Vector2(target.position.x + testi, target.position.y + testi);
     }
 
     // Update is called once per frame
@@ -30,7 +33,7 @@ public class BulletController : MonoBehaviour
 
         Debug.Log("I am moving");
 
-        // Move
+        // Move, add random variation derived from accuracy variable
         transform.position = Vector2.MoveTowards(transform.position, point, moveSpeed * Time.deltaTime);
         
         // Lifetime
@@ -50,18 +53,9 @@ public class BulletController : MonoBehaviour
             //other.gameObject.GetComponent<PlayerController>().hitPoints -= 1;
             if (other.gameObject.GetComponent<PlayerController>())
             {
-                other.gameObject.GetComponent<PlayerController>().damageTaken += myDamage;
+                other.gameObject.GetComponent<PlayerController>().damageTaken += damage;
             }
-            else if (other.gameObject.GetComponent<Player2Controller>())
-            {
-                other.gameObject.GetComponent<Player2Controller>().damageTaken += myDamage;
-            }
-            else if (other.gameObject.GetComponent<Player3Controller>())
-            {
-                other.gameObject.GetComponent<Player3Controller>().damageTaken += myDamage;
-            }
-
-
+            
             Destroy(gameObject);
         }
 

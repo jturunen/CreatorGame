@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Monster
   - Minion
+  - PlayerTarget
+  - PowerUp
+  - Container
   layers:
   - Default
   - TransparentFX
@@ -17,7 +20,7 @@ TagManager:
   - 
   - Characters
   - Borders
-  - 
+  - Background
   - 
   - 
   - 
