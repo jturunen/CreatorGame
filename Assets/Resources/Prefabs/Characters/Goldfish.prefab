@@ -185,20 +185,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myName: 
   moveSpeed: 2
-  hitPoints: 5
+  hitPoints: 2
   attackSpeed: 0.1
   attackRange: 5
   fleeRange: 0
   damageTaken: 0
   magazineSize: 12
   reloadTime: 2
+  stun: 0
+  accuracy: 99
+  damage: 1
   isControlled: 0
   ranged: 1
   attackPrefab: {fileID: 1617936150534346, guid: 540ae985d838dc44ca8fc7d678acffcb,
     type: 2}
-  deathPrefab: {fileID: 1734338061279592, guid: 5e4b5485ae685c94b915d6ae0bccd5b9,
+  deathPrefab: {fileID: 1964543311967598, guid: cf44ab7e7ba4f284ebb8855bf7304590,
     type: 2}
-  weaponPrefab: {fileID: 0}
+  bloodPrefab: {fileID: 1734338061279592, guid: 5e4b5485ae685c94b915d6ae0bccd5b9,
+    type: 2}
   spawnChoise: 0
 --- !u!212 &212297920576951314
 SpriteRenderer:

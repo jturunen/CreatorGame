@@ -14,19 +14,23 @@ public class EnemyController : MonoBehaviour {
     public float damageTaken = 0f; // Damage incoming from outside
     public float magazineSize; // Size of the magazine
     public float reloadTime; // Time to reload
+    public float stun; // Time character is stunned
+    public float accuracy; // How accurate does the character shoot
+    public float damage; // How much damage to deal;
     public bool isControlled = false;
     public bool ranged = false;
     public GameObject attackPrefab; // Attack animation/sprite/whateverthefuck
     public GameObject deathPrefab; // Death particle/effect
-    public GameObject weaponPrefab; // Currently held weapon
-    private enum States {idle, chase, attack, flee, dead, reload}; // Enum for state machine
+    public GameObject bloodPrefab; // Blood particle/effect
+    public bool spawnChoise = false;
+
+    private enum States {idle, chase, attack, flee, dead, reload, stun, hurt}; // Enum for state machine
     private States state = States.idle;
     //private string state = "idle"; // Start of the state machine, turn into enums later
     private Transform target; // Current target AI should chase
     private GameObject myAttack; // Current attack   
+    private SpriteRenderer mySprite; // My sprite
     private bool facingRight = true; // Direction to look at
-    public bool spawnChoise = false;
-    private SpriteRenderer spriterend;
     private float timeSinceLastAttack = 0f; // Time since last attack
     private float bullets;
     private float timeSpentReloading;
@@ -35,9 +39,8 @@ public class EnemyController : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-
+        mySprite = GetComponent<SpriteRenderer>();
         bullets = magazineSize;
-
     }
 
     // Update is called once per frame
@@ -48,9 +51,9 @@ public class EnemyController : MonoBehaviour {
 
     // Fixed Update
     private void FixedUpdate()
-    {
+    {       
 
-        if (isControlled == false)
+        if (!isControlled)
         {
             // States
             switch (state)
@@ -73,9 +76,15 @@ public class EnemyController : MonoBehaviour {
                 case States.reload:
                     Reload();
                     break;
+                case States.hurt:
+                    Hurt();
+                    break;
+                case States.stun:
+                    Stun();
+                    break;
             }
         }
-        else if (isControlled == true)
+        else if (isControlled)
         {
             // Movement
             if (!myAttack)
@@ -106,34 +115,41 @@ public class EnemyController : MonoBehaviour {
                 isControlled = false;
                 state = States.dead;
             }
+            else if (damageTaken > 0)
+            {
+                Hurt();
+            }
 
             // My attack
             if (Input.GetButton("Keyboard Attack 2") && !myAttack)
             {
-                if (facingRight)
+                
+                // Melee attack
+                if (!ranged)
                 {
-                    float x2 = transform.position.x + attackRange;
-                    float y2 = transform.position.y;
-                    myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
-                    myAttack.GetComponent<AttackController>().myEnemy = "Player";
-                    SoundManagerController.PlaySound("Swish");
+                    if (facingRight)
+                    {
+                        float x2 = transform.position.x + attackRange;
+                        float y2 = transform.position.y;
+                        myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
+                        myAttack.GetComponent<AttackController>().myEnemy = "Player";
+                        SoundManagerController.PlaySound("Swish");
+                    }
+                    if (!facingRight)
+                    {
+                        float x2 = transform.position.x - attackRange;
+                        float y2 = transform.position.y;
+                        myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
+                        myAttack.GetComponent<AttackController>().myEnemy = "Player";
+                        myAttack.GetComponent<SpriteRenderer>().flipX = true;
+                        SoundManagerController.PlaySound("Swish");
+                    }
                 }
-                if (!facingRight)
-                {
-                    float x2 = transform.position.x - attackRange;
-                    float y2 = transform.position.y;
-                    myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
-                    myAttack.GetComponent<AttackController>().myEnemy = "Player";
-                    myAttack.GetComponent<SpriteRenderer>().flipX = true;
-                    SoundManagerController.PlaySound("Swish");
-                }
+                
             }
 
         }
         
-
-        
-
         // Attack speed
         if (timeSinceLastAttack > 0)
         {
@@ -142,11 +158,7 @@ public class EnemyController : MonoBehaviour {
 
         if (damageTaken > 0)
         {
-            hitPoints -= damageTaken;
-            damageTaken = 0;
-            StartCoroutine("HurtColor");
-            Instantiate(deathPrefab, transform.position, transform.rotation);
-            SoundManagerController.PlaySound("Hit");
+            state = States.hurt;
         }
 
         // Health/Death
@@ -154,6 +166,10 @@ public class EnemyController : MonoBehaviour {
         {
             state = States.dead;
         }
+
+        // Drawing order
+        int i = (Mathf.RoundToInt(transform.position.y));
+        mySprite.sortingOrder = -i;
 
     }
 
@@ -236,6 +252,7 @@ public class EnemyController : MonoBehaviour {
                 float y2 = target.position.y;
                 myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
                 myAttack.GetComponent<AttackController>().myEnemy = "Player";
+                myAttack.GetComponent<AttackController>().myDamage = damage;
                 if (!facingRight)
                     myAttack.GetComponent<SpriteRenderer>().flipX = true;
                 SoundManagerController.PlaySound("Swish");
@@ -249,6 +266,9 @@ public class EnemyController : MonoBehaviour {
                 float y2 = transform.position.y;
                 myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
                 myAttack.GetComponent<BulletController>().target = target;
+                myAttack.GetComponent<BulletController>().accuracy = accuracy;
+                myAttack.GetComponent<BulletController>().damage = damage;
+                //myAttack.GetComponent<BulletController>().accuracy = accuracy;
                 SoundManagerController.PlaySound("Gun");
             }
             else if (ranged && bullets <= 0)
@@ -358,13 +378,62 @@ public class EnemyController : MonoBehaviour {
         //testi.GetComponent<GameController>().minionsKilled += 1;
 
         // Visual effect
-        Instantiate(deathPrefab, transform.position, transform.rotation);
+        Instantiate(bloodPrefab, transform.position, transform.rotation);
+        float z = Random.Range(1f, 360f);
+        float xy = Random.Range(0.0f, 1.0f);
+        Instantiate(deathPrefab, transform.position, Quaternion.Euler(xy, xy, z));
 
         // Sound
         SoundManagerController.PlaySound("GoblinDeath");
+        SoundManagerController.PlaySound("Explosion");
 
         // Destroy
         Destroy(gameObject);
+
+    }
+
+    // Take damage if hurt
+    private void Hurt()
+    {
+
+        state = States.stun;
+        hitPoints -= damageTaken;
+        damageTaken = 0;
+        
+        // Special effects
+        Instantiate(bloodPrefab, transform.position, transform.rotation);
+        SoundManagerController.PlaySound("Hit");
+        StartCoroutine("HurtColor");
+
+    }
+
+    // Stun state
+    private void Stun()
+    {
+
+        #region Triggers
+
+        // Taking damage
+        if (damageTaken > 0)
+        {
+            state = States.hurt;
+        }
+
+        // Stun ends
+        if (stun <= 0)
+        {
+            state = States.idle;
+        }
+
+        #endregion Triggers
+
+        #region Behaviour
+
+        // Lower stun duration
+        if (stun > 1) stun = 1;
+        stun -= 1 * Time.deltaTime;
+
+        #endregion Behaviour
 
     }
 

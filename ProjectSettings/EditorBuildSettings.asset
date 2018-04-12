@@ -5,10 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/creatingPhaseScene.unity
     guid: ea730983121a2204c87e3e8893e2f7bb
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/fightScene.unity
     guid: 06c32f79bd036e24890cbef0da7403f5
   - enabled: 1

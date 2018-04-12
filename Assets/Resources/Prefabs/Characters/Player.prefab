@@ -204,17 +204,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerNumber: 0
   moveSpeed: 5
-  hitPoints: 20
+  hitPoints: 10
   attackRange: 1.5
   flashLength: 0.5
   damageTaken: 0
   dodgeDistance: 7
   dodgeSpeed: 10
-  dodgeSafety: 0
-  attackPrefab: {fileID: 1244472726628718, guid: 2b714a7244ec7a34ba63055944253e5d,
+  powerupSpeedLength: 0
+  powerupSpeedEffect: 0
+  damage: 1
+  powerupDamageLength: 0
+  powerupDamageEffect: 0
+  dodgeSafety: 1
+  dodgeSound: 1
+  attackPrefab: {fileID: 1635639314255340, guid: 2b714a7244ec7a34ba63055944253e5d,
     type: 2}
-  deathPrefab: {fileID: 1734338061279592, guid: 5e4b5485ae685c94b915d6ae0bccd5b9,
+  deathPrefab: {fileID: 1964543311967598, guid: cf44ab7e7ba4f284ebb8855bf7304590,
     type: 2}
+  bloodPrefab: {fileID: 1734338061279592, guid: 5e4b5485ae685c94b915d6ae0bccd5b9,
+    type: 2}
+  fartPrefab: {fileID: 1689295250272000, guid: 4ec4de27a7ef8914ea10734a60e168de, type: 2}
 --- !u!212 &212334476365904496
 SpriteRenderer:
   m_ObjectHideFlags: 1

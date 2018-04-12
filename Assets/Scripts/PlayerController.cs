@@ -8,7 +8,8 @@ public class PlayerController : MonoBehaviour {
     #region Variables
 
     Animator anim;
-
+    
+    //[System.NonSerialized]
     public int playerNumber; // What is the player number
     public float moveSpeed = 0.0f; // Movement speed
     public float hitPoints = 0.0f; // Health
@@ -17,9 +18,17 @@ public class PlayerController : MonoBehaviour {
     public float damageTaken = 0f; // Amount of incoming damage
     public float dodgeDistance = 0.0f; // Distance to dodge roll   
     public float dodgeSpeed; // Speed of how fast to dodge;
-    public bool dodgeSafety; // Can character take damage while while dodging   
+    public float powerupSpeedLength; // How long the speed power up lasts
+    public float powerupSpeedEffect; // How much speed the speed power up gives
+    public float damage; // How much damage this character deals when attacking
+    public float powerupDamageLength; // Power Up Damage Length
+    public float powerupDamageEffect; // Power Up Damage Effect
+    public bool dodgeSafety; // Can character take damage while while dodging
+    public bool dodgeSound; // Sound effect for dodge?
     public GameObject attackPrefab; // The attack prefab this character uses
     public GameObject deathPrefab; // Death particle/effect
+    public GameObject bloodPrefab; // Blood particle/effect
+    public GameObject fartPrefab; // Fart particle/effect
 
     private float moveHorizontal; // Horizontal movement, keyboard
     private float moveVertical; // Vertical movement, keyboard
@@ -27,13 +36,15 @@ public class PlayerController : MonoBehaviour {
     private float moveVertical_P1; // Vertical movement, gamepad
     private float flashCounter; // Duration of hitflash
     private float dodgeDistanceNow; // Distance dodge rolled so far
+    private float moveSpeedBonus; // Bonus move speed from speed power up
+    private float damageBonus; // Current damage bonus
     private bool facingRight = true; // Is the character facing right?
     private bool flashActive;  // Is the hitflash active?   
-    private bool attackDone = false; // Did character already do attack in attack state?
+    private bool attackStarted = false; // Did character already start attack in attack state?
     private bool dodgeStarted; // Dodge roll started yet?
     private bool buttonAttack; // Attack button being pressed?
     private bool buttonDodge; // Dodge button pressed?
-    private enum States { idle, move, attack, flee, dead, dodge, win }; // Enum for state machine
+    private enum States { idle, move, attack, attackStart, flee, dead, dodge, win }; // Enum for state machine
     private States state = States.idle; // State
     private GameObject myAttack; // Characters current attack, default should be null
     private SpriteRenderer mySprite;
@@ -43,6 +54,7 @@ public class PlayerController : MonoBehaviour {
     // Use this for initialization
     void Start () {
         anim = GetComponent<Animator>();
+        mySprite = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
@@ -72,6 +84,9 @@ public class PlayerController : MonoBehaviour {
             case States.win:
                 Win();
                 break;
+            case States.attackStart:
+                AttackStart();
+                break;
             /*
             case States.flee:
                 Flee();
@@ -88,6 +103,29 @@ public class PlayerController : MonoBehaviour {
         // Die
         if (hitPoints <= 0) Dead();
 
+        // Power ups
+        if (powerupSpeedLength > 0)
+        {
+            powerupSpeedLength -= 1 * Time.deltaTime;
+            moveSpeedBonus = powerupSpeedEffect;
+            //transform.localScale = new Vector3(2f, 2f, 0);
+        }
+        else
+        {
+            moveSpeedBonus = 0;
+            //transform.localScale = new Vector3(1, 1, 0);
+        }
+
+        if (powerupDamageLength > 0)
+        {
+            powerupDamageLength -= 1 * Time.deltaTime;
+            damageBonus = powerupDamageEffect;
+        }
+        else
+        {
+            damageBonus = 0;
+        }
+
         /*
         // Game won?
         GameObject testi = GameObject.FindWithTag("GameController");
@@ -95,8 +133,12 @@ public class PlayerController : MonoBehaviour {
         {
             state = States.win;
         }
-        */     
+        */
 
+        // Drawing order
+        int i = (Mathf.RoundToInt(transform.position.y));
+        mySprite.sortingOrder = -i;
+        
     }
 
     // Read input from the player
@@ -155,20 +197,17 @@ public class PlayerController : MonoBehaviour {
         // User inputs to move
         if (moveHorizontal != 0f || moveVertical != 0f )
         {
-            Debug.Log("Move button pressed");
+            //Debug.Log("Move button pressed");
             state = States.move;
-            anim.SetBool("Idle", false);
-            anim.SetBool("Walk", true);
+            ChangeToAnimation("Walk");
         }
 
         // User input to attack
         if (buttonAttack)
         {
-            Debug.Log("Attack button pressed");
-            attackDone = false;
-            state = States.attack;
-            anim.SetBool("Idle", false);
-            anim.SetBool("Attack", true);
+            //Debug.Log("Attack button pressed");
+            state = States.attackStart;
+            
         }
 
         #endregion Trigger
@@ -185,7 +224,7 @@ public class PlayerController : MonoBehaviour {
     private void Move()
     {
         
-        Debug.Log("My state is now move");
+        //Debug.Log("My state is now move");
 
         #region Trigger
 
@@ -200,8 +239,8 @@ public class PlayerController : MonoBehaviour {
         // User inputs attack
         if (buttonAttack)
         {
-            attackDone = false;
-            state = States.attack;
+            attackStarted = false;
+            state = States.attackStart;
             anim.SetBool("Walk", false);
             anim.SetBool("Attack", true);          
         }
@@ -210,8 +249,9 @@ public class PlayerController : MonoBehaviour {
         if (buttonDodge)
         {
             state = States.dodge;
-            anim.SetBool("Walk", false);
-            anim.SetBool("Dodge", true);
+            ChangeToAnimation("Dodge");
+            if (dodgeSound) SoundManagerController.PlaySound("Fart");
+            if (dodgeSound) Instantiate(fartPrefab, transform.position, transform.rotation);
         }
 
         #endregion Trigger
@@ -230,7 +270,7 @@ public class PlayerController : MonoBehaviour {
 
         //float moveHorizontal = Input.GetAxisRaw("Horizontal");
         //float moveVertical = Input.GetAxisRaw("Vertical");
-        transform.Translate(new Vector3(moveHorizontal, moveVertical) * moveSpeed * Time.deltaTime, Space.World);
+        transform.Translate(new Vector3(moveHorizontal, moveVertical) * (moveSpeed + moveSpeedBonus) * Time.deltaTime, Space.World);
 
         #endregion Keyboard
 
@@ -251,54 +291,72 @@ public class PlayerController : MonoBehaviour {
 
     }
 
+    // Attack start state
+    private void AttackStart()
+    {
+        #region Behaviour
+
+        // Create attack prefab left or right
+        if (!myAttack && !attackStarted)
+        //if (!attackStarted && !myAttack)
+        {
+
+            float y2 = transform.position.y;
+
+            if (facingRight)
+            {
+        
+                float x2 = transform.position.x + attackRange;                
+                myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity, transform);
+                myAttack.GetComponent<AttackController>().myDamage = damage + damageBonus;
+                
+            }
+            else if (!facingRight)
+            {
+                
+                float x2 = transform.position.x - attackRange;
+                myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity, transform);
+                myAttack.GetComponent<SpriteRenderer>().flipX = true;
+                myAttack.GetComponent<AttackController>().myDamage = damage + damageBonus;
+
+            }
+
+            myAttack.GetComponent<AttackController>().myEnemy = "Minion";
+            attackStarted = true;
+            // Sound
+            SoundManagerController.PlaySound("Swish");
+            // State
+            state = States.attack;
+
+        }
+
+        #endregion Behaviour
+    }
+
     // Attack 
     private void Attack ()
     {
         
         // Log
-        Debug.Log("My state is now attack");
+        //Debug.Log("My state is now attack");
 
         // Triggers
         #region Triggers
         //Debug.Log(myAttack);
-        //Debug.Log(attackDone);
+        //Debug.Log(attackStarted);
         // Go idle when attack is done
-        if (attackDone)
+        if (!myAttack && attackStarted)
         {
-            attackDone = false;
+            attackStarted = false;
             state = States.idle;
-            anim.SetBool("Attack", false);
-            anim.SetBool("Idle", true);
+            //anim.SetBool("Attack", false);
+            //anim.SetBool("Idle", true);
         }
 
         #endregion Triggers
 
         #region Behaviour
 
-        // Create attack prefab left or right
-        if (!myAttack && !attackDone)
-        //if (!attackDone && !myAttack)
-        {
-            if (facingRight)
-            {
-                attackDone = true;
-                float x2 = transform.position.x + attackRange;
-                float y2 = transform.position.y;
-                myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
-                myAttack.GetComponent<AttackController>().myEnemy = "Minion";
-                SoundManagerController.PlaySound("Swish");
-            }
-            if (!facingRight)
-            {
-                attackDone = true;
-                float x2 = transform.position.x - attackRange;
-                float y2 = transform.position.y;
-                myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
-                myAttack.GetComponent<AttackController>().myEnemy = "Minion";
-                myAttack.GetComponent<SpriteRenderer>().flipX = true;
-                SoundManagerController.PlaySound("Swish");
-            }
-        }
 
         #endregion Behaviour
 
@@ -329,8 +387,17 @@ public class PlayerController : MonoBehaviour {
     // Die
     private void Dead()
     {
+
+        // Visual effect
+        Instantiate(bloodPrefab, transform.position, transform.rotation);
         Instantiate(deathPrefab, transform.position, transform.rotation);
+
+        // Sound
+        SoundManagerController.PlaySound("GoblinDeath");
+
+        // Destroy
         Destroy(gameObject);
+
     }
 
     // Win
@@ -343,7 +410,7 @@ public class PlayerController : MonoBehaviour {
     // Dodge roll
     private void Dodge()
     {
-
+        
         // Log
         Debug.Log("My state is now Dodge");
 
@@ -361,9 +428,9 @@ public class PlayerController : MonoBehaviour {
         }
 
         // User inputs attack
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (buttonAttack)
         {
-            state = States.attack;
+            state = States.attackStart;
             anim.SetBool("Dodge", false);
             anim.SetBool("Attack", true);
             dodgeStarted = false;
@@ -379,6 +446,7 @@ public class PlayerController : MonoBehaviour {
         {
             dodgeStarted = true;
             dodgeDistanceNow = 0;
+            
         }
 
         // Dodge 
@@ -409,11 +477,39 @@ public class PlayerController : MonoBehaviour {
     private void handleDamage()
     {
         
-        hitPoints -= damageTaken;
-        damageTaken = 0;
-        StartCoroutine("HurtColor");
-        Instantiate(deathPrefab, transform.position, transform.rotation);
-        SoundManagerController.PlaySound("Hit");
+        if (state == States.dodge && dodgeSafety)
+        {
+            damageTaken = 0;
+        }
+        else
+        {
+
+            // Take damage
+            hitPoints -= damageTaken;
+            damageTaken = 0;
+
+            // Special effects
+            StartCoroutine("HurtColor");
+            Instantiate(bloodPrefab, transform.position, transform.rotation);
+            SoundManagerController.PlaySound("Hit");
+
+        }         
+
+    }
+
+    // Handle animations
+    private void ChangeToAnimation(string testi)
+    {
+
+        //Debug.Log("Animation changed");
+
+        anim.SetBool("Idle", false);
+        anim.SetBool("Attack", false);
+        anim.SetBool("Walk", false);
+        anim.SetBool("Dodge", false);
+
+        anim.SetBool(testi, true);
+
     }
 
     // Hit flash
