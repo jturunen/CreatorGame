@@ -99,7 +99,8 @@ MonoBehaviour:
   lifetime: 0.4
   myEnemy: 
   myDamage: 0
-  myStun: 1
+  myStun: 0.2
+  owner: {fileID: 0}
 --- !u!212 &212710058450695010
 SpriteRenderer:
   m_ObjectHideFlags: 1

@@ -48,6 +48,10 @@ public class SpawnerController : MonoBehaviour {
             gameController.minionIndex++;
             //Reduce one maxSpawns
             maxSpawns--;
+            if(maxSpawns == 0)
+            {
+                gameController.allMinionsSpawned = true;
+            }
         }
     }
 

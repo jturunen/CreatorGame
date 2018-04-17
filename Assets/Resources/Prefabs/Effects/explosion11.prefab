@@ -71,6 +71,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifetime: 1
+  deathSound: Explosion
 --- !u!212 &212955574169264436
 SpriteRenderer:
   m_ObjectHideFlags: 1

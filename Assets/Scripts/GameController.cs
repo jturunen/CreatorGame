@@ -26,7 +26,7 @@ public class GameController : MonoBehaviour {
 	void Update () {
 		
         // Restart scene
-        if (Input.GetKeyDown (KeyCode.R))
+        if (Input.GetKeyDown (KeyCode.R) || Input.GetKeyDown(KeyCode.Joystick1Button3))
         {
 
             if (testMode)

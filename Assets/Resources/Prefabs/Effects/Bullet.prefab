@@ -98,9 +98,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  moveSpeed: 9
-  lifetime: 25
-  myDamage: 1
+  moveSpeed: 6.5
+  lifetime: 60
+  damage: 0
+  accuracy: 0
 --- !u!212 &212608301358592168
 SpriteRenderer:
   m_ObjectHideFlags: 1

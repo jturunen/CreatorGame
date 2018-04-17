@@ -185,7 +185,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myName: 
   moveSpeed: 2
-  hitPoints: 2
+  hitPoints: 6
   attackSpeed: 0.1
   attackRange: 5
   fleeRange: 0
@@ -193,7 +193,7 @@ MonoBehaviour:
   magazineSize: 12
   reloadTime: 2
   stun: 0
-  accuracy: 99
+  accuracy: 98.5
   damage: 1
   isControlled: 0
   ranged: 1

@@ -8,6 +8,7 @@ public class ContainerController : MonoBehaviour {
     public float lootChance; // Chance to drop loot
 
     public GameObject loot; // What to drop
+    public GameObject deathPrefab; // Death animation
 
     private SpriteRenderer mySprite; // My sprite
 
@@ -26,8 +27,17 @@ public class ContainerController : MonoBehaviour {
         // Health and die
         if (health <= 0)
         {
-            Instantiate(loot, transform.position, transform.rotation);
+            
+            // Drop loot randomly
+            if (Random.value * 100 <= lootChance)
+            {
+                Instantiate(loot, transform.position, transform.rotation);   
+            }
+
+            // Die
             Destroy(gameObject);
+            Instantiate(deathPrefab, transform.position, transform.rotation);
+
         }
 
 	}

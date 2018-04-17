@@ -39,7 +39,8 @@ public class EnemyController : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        mySprite = GetComponent<SpriteRenderer>();
+        //Debug.Log("AAAAAAAAAAAAAAAAAAAAAAAAAA");
+        //mySprite = GetComponent<SpriteRenderer>();
         bullets = magazineSize;
     }
 
@@ -126,24 +127,25 @@ public class EnemyController : MonoBehaviour {
                 
                 // Melee attack
                 if (!ranged)
-                {
+                {            
+                    
                     if (facingRight)
                     {
                         float x2 = transform.position.x + attackRange;
                         float y2 = transform.position.y;
-                        myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
-                        myAttack.GetComponent<AttackController>().myEnemy = "Player";
-                        SoundManagerController.PlaySound("Swish");
+                        myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);                      
                     }
                     if (!facingRight)
                     {
                         float x2 = transform.position.x - attackRange;
                         float y2 = transform.position.y;
                         myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
-                        myAttack.GetComponent<AttackController>().myEnemy = "Player";
                         myAttack.GetComponent<SpriteRenderer>().flipX = true;
-                        SoundManagerController.PlaySound("Swish");
                     }
+                    myAttack.GetComponent<AttackController>().myEnemy = "Player";
+                    myAttack.GetComponent<AttackController>().myDamage = damage;
+                    SoundManagerController.PlaySound("Swish");
+                    
                 }
                 
             }
@@ -166,11 +168,11 @@ public class EnemyController : MonoBehaviour {
         {
             state = States.dead;
         }
-
+        /*
         // Drawing order
         int i = (Mathf.RoundToInt(transform.position.y));
         mySprite.sortingOrder = -i;
-
+        */
     }
 
     // Stand idle if Otters do not exist
@@ -385,7 +387,7 @@ public class EnemyController : MonoBehaviour {
 
         // Sound
         SoundManagerController.PlaySound("GoblinDeath");
-        SoundManagerController.PlaySound("Explosion");
+        //SoundManagerController.PlaySound("Explosion");
 
         // Destroy
         Destroy(gameObject);

@@ -10,6 +10,7 @@ public class SoundManagerController : MonoBehaviour {
         fart1, fart2, fart3;
     static AudioSource audioSrc;
     public bool playMusic;
+    public AudioClip pierusound;
 
     // Use this for initialization
     void Start()

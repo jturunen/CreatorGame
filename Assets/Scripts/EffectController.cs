@@ -6,10 +6,12 @@ public class EffectController : MonoBehaviour {
 
     public float lifetime; // How long this effect should last
 
+    public string deathSound; // What sound to play when dying
+
 	// Use this for initialization
 	void Start () {
-		
-	}
+        SoundManagerController.PlaySound(deathSound);
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -23,7 +25,7 @@ public class EffectController : MonoBehaviour {
 
         if (lifetime <= 0)
         {
-            Destroy(gameObject);            
+            Destroy(gameObject);
         }
 
     }

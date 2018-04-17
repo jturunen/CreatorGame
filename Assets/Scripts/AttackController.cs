@@ -8,6 +8,7 @@ public class AttackController : MonoBehaviour {
     public string myEnemy; // What character should attack damage
     public float myDamage; // How much damage to deal
     public float myStun; // How long time the attack stuns
+    public GameObject owner; // Who created this attack;
 
     private Collider2D parentCollider;
     //private Transform target;
@@ -41,7 +42,9 @@ public class AttackController : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D other)
     {
 
-        if (other.gameObject.GetComponent<Collider2D>() != parentCollider)
+        //if (other.gameObject.GetComponent<Collider2D>() != parentCollider)
+        if (other.gameObject != owner)
+        //if (true)
         {
 
             switch (other.gameObject.tag)
