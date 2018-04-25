@@ -11,6 +11,9 @@ public class SpawnController : MonoBehaviour {
     * Then for example, when players enter room, go through list and spawn monsters then.
     */
     #region Variables
+
+    public static SpawnController instance;
+
     [Tooltip("Positions where Spawners will spawn. X is horizontal, Y is vertical")]
     public float spawnerMinX, spawnerMinY, spawnerMaxX, spawnerMaxY;
     [Tooltip("For disabling the spawner mode and activating single spawns")]
@@ -55,8 +58,8 @@ public class SpawnController : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        DontDestroyOnLoad(this.gameObject);
-        
+        //DontDestroyOnLoad(this.gameObject);
+        instance = this;
         // Get Minions folder as object.
         Object[] subListObjects = Resources.LoadAll("Prefabs/Characters", typeof(GameObject));
 
@@ -87,16 +90,17 @@ public class SpawnController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        #region SpawingFromButtons
         if (currentMinionCount <= maxMinions && Time.time > nextSpawn && !fighting) {
             //TODO: change buttons to Fire1 etc. after the 4th controller 
-            
+            #region firstMinion
             if (Input.GetKeyDown(KeyCode.RightArrow))
             { 
                 if(bigsySelections < maxBigsySelections)
                 {
                     bigsySelections++;
                     SpawnToPoint(minionsFromPrefabs[0]);
-                    SoundManagerController.PlaySound("Hit");
+                    SoundManagerController.instance.PlaySound("Hit", 1f);
                     if (bigsySelections == maxBigsySelections)
                     {
                         //Show that selection is disabled
@@ -105,15 +109,17 @@ public class SpawnController : MonoBehaviour {
                     }
                 } else
                 {
-                    SoundManagerController.PlaySound("Denied");
+
+                    SoundManagerController.instance.PlaySound("Denied", 1f);
                 }
-            } 
+            }
+            #endregion
+            #region secondMinion
 
             if (Input.GetKeyDown(KeyCode.LeftArrow) && trashySelections < maxTrashySelections)
             {
                 trashySelections++;
                 SpawnToPoint(minionsFromPrefabs[1]);
-                SoundManagerController.PlaySound("Hit");
                 if (trashySelections == maxTrashySelections)
                 {
                     //Show that selection is disabled
@@ -121,12 +127,14 @@ public class SpawnController : MonoBehaviour {
                     trashySpriteObject.GetComponent<SpriteRenderer>().sprite = trashyDisabled;
 
                 }
+                SoundManagerController.instance.PlaySound("Hit", 1f);
             }
+            #endregion
+            #region secondMinion
             if (Input.GetKeyDown(KeyCode.UpArrow) && goldFishSelections < maxGoldfishSelections)
             {
                 goldFishSelections++;
                 SpawnToPoint(minionsFromPrefabs[2]);
-                SoundManagerController.PlaySound("Reload");
                 if (goldFishSelections == maxGoldfishSelections)
                 {
                     //Show that selection is disabled
@@ -134,29 +142,21 @@ public class SpawnController : MonoBehaviour {
                     goldfishSpriteObject.GetComponent<SpriteRenderer>().sprite = goldfishDisabled;
 
                 }
+                SoundManagerController.instance.PlaySound("Reload", 1f);
             }
-            /*if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                SpawnToPoint(minionsFromPrefabs[3]);
-            }
-            if (Input.GetButton("Left Bumber"))
-            {
-                SpawnToPoint(minionsFromPrefabs[4]);
-            }
-            if (Input.GetButton("Right Bumber"))
-            {
-                SpawnToPoint(minionsFromPrefabs[5]);
-            }*/
+            #endregion
+            #endregion
+
         }
         // Spawn enemies from list
         if (currentMinionCount == maxMinions && !minionSpawning)
         {
             if (SceneManager.GetActiveScene().name == "creatingPhaseScene")
             {
-                SceneManager.LoadScene("jariScene", LoadSceneMode.Single);
+                SceneManager.LoadScene("Chinatown", LoadSceneMode.Single);
                 fighting = true; //Creating phase is over, start fighting
             }
-            else if (SceneManager.GetActiveScene().name == "jariScene")
+            else if (SceneManager.GetActiveScene().name == "Chinatown")
             {
                 waitTime -= Time.deltaTime;
                 if (waitTime < 0)
@@ -194,6 +194,7 @@ public class SpawnController : MonoBehaviour {
                 (Instantiate(spawner, levelSpawnPointPositions[i], Quaternion.identity) as GameObject).GetComponent<SpawnerController>().setMinion(chosenMinionsList[i]);
             } else
             {
+                #region spawnOnlyOne
                 // --------------spawn only one mob per point-------------------------------
                 GameObject minion = chosenMinionsList[i];
                 EnemyController c = minion.GetComponent<EnemyController>();
@@ -213,6 +214,7 @@ public class SpawnController : MonoBehaviour {
                     c.isControlled = false;
                     Instantiate(chosenMinionsList[i], levelSpawnPointPositions[i], Quaternion.identity);
                 }
+                #endregion
             }
         }
         //Enable minionSpawning so to prevent update to spawn enemies multiple times
@@ -232,7 +234,7 @@ public class SpawnController : MonoBehaviour {
             //Change to chosen sprite minion, (and back to white)
             spawnPointSprite.color = new Color(1f, 1f, 1f, 1f);
             //Find the chosen minion from the list and get its sprite
-            spawnPointSprite.sprite = chosenMinionsList[currentMinionCount].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
+            //spawnPointSprite.sprite = chosenMinionsList[currentMinionCount].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
         } else
         {
             spawnPointToFind.SetActive(true);

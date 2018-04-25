@@ -56,7 +56,7 @@ MonoBehaviour:
   trashySpawnRate: 5
   goldfishSpawnRate: 10
   bigsySpawnRate: 10
-  trashyMaxSpawns: 4
+  trashyMaxSpawns: 3
   goldfishMaxSpawns: 2
   bigsyMaxSpawns: 2
   spawnRate: 3

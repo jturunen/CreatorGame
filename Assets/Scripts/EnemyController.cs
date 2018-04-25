@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour {
-
+    
     #region Variables
     public string myName = ""; // Used for initializing different monsters
     public float moveSpeed = 1.0f; // Movement speed
     public float hitPoints = 1.0f;
-    public float attackSpeed = 0.0f; // How low time between shots
+    public float safetyDuration; // Duration of safety/invulnerability/damage immunity
+    public float safetyDurationHotswap; // Duration of safety when minion control is changed
+    public float attackCooldown; // How low time between attacks
     public float attackRange = 1.0f; // Distance how long attack will be started from
     public float fleeRange = 1.0f; // Distance how close Otters can be before fleeing 
     public float damageTaken = 0f; // Damage incoming from outside
@@ -17,11 +19,17 @@ public class EnemyController : MonoBehaviour {
     public float stun; // Time character is stunned
     public float accuracy; // How accurate does the character shoot
     public float damage; // How much damage to deal;
+    public float gunSoundVolume; // Sound volume level
     public bool isControlled = false;
     public bool ranged = false;
+    public bool friendlyFire; // Should character damage friendly targets
     public GameObject attackPrefab; // Attack animation/sprite/whateverthefuck
     public GameObject deathPrefab; // Death particle/effect
     public GameObject bloodPrefab; // Blood particle/effect
+    public GameObject controlledPrefab; // Visual indicator for character being controlled
+    public GameObject bottlePrefab; // Bottle prefab for special attack
+    public GameObject weapon; // What weapon this character uses
+    public GameObject gunTip; // Where is tip of the gun for projectile start place
     public bool spawnChoise = false;
 
     private enum States {idle, chase, attack, flee, dead, reload, stun, hurt}; // Enum for state machine
@@ -34,20 +42,25 @@ public class EnemyController : MonoBehaviour {
     private float timeSinceLastAttack = 0f; // Time since last attack
     private float bullets;
     private float timeSpentReloading;
+    private Animator myAnimator;
+    
     #endregion
     
     // Use this for initialization
     void Start()
     {
         //Debug.Log("AAAAAAAAAAAAAAAAAAAAAAAAAA");
-        //mySprite = GetComponent<SpriteRenderer>();
+        mySprite = GetComponent<SpriteRenderer>();
         bullets = magazineSize;
+        myAnimator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-    
+        // Drawing order
+        int i = (Mathf.RoundToInt(transform.position.y*1000));
+        mySprite.sortingOrder = -i;
     }
 
     // Fixed Update
@@ -113,12 +126,20 @@ public class EnemyController : MonoBehaviour {
             // Health
             if (hitPoints <= 0)
             {
-                isControlled = false;
-                state = States.dead;
+                //isControlled = false;
+                //state = States.dead;
+                Dead();
             }
             else if (damageTaken > 0)
             {
-                Hurt();
+                if (safetyDuration > 0)
+                {
+                    damageTaken = 0;
+                }
+                else
+                {
+                    Hurt();
+                }
             }
 
             // My attack
@@ -144,10 +165,25 @@ public class EnemyController : MonoBehaviour {
                     }
                     myAttack.GetComponent<AttackController>().myEnemy = "Player";
                     myAttack.GetComponent<AttackController>().myDamage = damage;
-                    SoundManagerController.PlaySound("Swish");
+                    //SoundManagerController.instance.PlaySound("Swish", 1f);
                     
                 }
                 
+            }
+
+            // Change controlled minion, hotswap
+            if (Input.GetKeyDown(KeyCode.Keypad1))
+            {             
+                GameObject[] minionList;
+                minionList = GameObject.FindGameObjectsWithTag("Minion");
+                
+                if (minionList.Length > 1)
+                {                   
+                    isControlled = false;
+                    GameObject newControlled = minionList[Random.Range(0, minionList.Length)];                        
+                    newControlled.GetComponent<EnemyController>().isControlled = true;
+                } 
+
             }
 
         }
@@ -160,7 +196,14 @@ public class EnemyController : MonoBehaviour {
 
         if (damageTaken > 0)
         {
-            state = States.hurt;
+            if (safetyDuration > 0)
+            {
+                damageTaken = 0;
+            }
+            else if (safetyDuration <= 0)
+            {
+                state = States.hurt;
+            }
         }
 
         // Health/Death
@@ -173,24 +216,79 @@ public class EnemyController : MonoBehaviour {
         int i = (Mathf.RoundToInt(transform.position.y));
         mySprite.sortingOrder = -i;
         */
+
+        // Visual indicator for being controlled
+        if (!isControlled)
+        {
+            controlledPrefab.SetActive(false);
+        }
+        else if (isControlled)
+        {
+            controlledPrefab.SetActive(true);
+        }
+
+        // Update safety duration
+        if (safetyDuration > 0.0f)
+        {
+            safetyDuration -= 1 * Time.deltaTime;
+        }
+
+        // Throw special attack bottle
+        if (bottlePrefab && !isControlled)
+        {
+            if (Random.Range(0,60) == 0)
+            {
+            GameObject myBottle;
+            float x2 = transform.position.x;
+            float y2 = transform.position.y;
+            myBottle = Instantiate(bottlePrefab, new Vector3(x2, y2), Quaternion.identity);
+            myBottle.GetComponent<BulletController>().target = target;
+            bottlePrefab = null;
+
+            }
+
+        }
+
+        // Roll after win
+        if (GameObject.FindGameObjectWithTag("winMobBoss"))
+        {
+            transform.Rotate(new Vector3(0, 0, -1), Time.deltaTime * 1800, Space.Self);
+        }
+
+        // Keep searching for closest enemy as Goldy
+        if (ranged && Random.Range(0, 60) == 0)
+        {
+            if (GameObject.FindWithTag("Player"))
+            {
+                target = FindClosestEnemy("Player").transform;
+                // Update goldy aim reticle
+                // target.GetComponent<PlayerController>().goldyAim = true;
+            }
+        }
+
     }
 
     // Stand idle if Otters do not exist
     private void Idle() 
     {
-
         //--- Behaviour
         Debug.Log("My state is Idle");
         
         //--- Trigger
-        //if (Random.Range(0, 60) == 0)
-        if (true)
+        if (Random.Range(0, 30) == 0)
         {
             if (GameObject.FindWithTag("Player"))
             {
                 target = FindClosestEnemy("Player").transform;
                 //target = GameObject.FindGameObjectWithTag("Player").transform;
                 state = States.chase;
+
+                if (ranged)
+                {
+                    // Update goldy aim reticle
+                    // target.GetComponent<PlayerController>().goldyAim = true;
+                }
+
             }
         }
         //--- Audiovisual
@@ -217,6 +315,7 @@ public class EnemyController : MonoBehaviour {
         else if (Vector2.Distance(transform.position, target.position) < attackRange)
         {
             state = States.attack;
+            myAnimator.SetBool("Attack", true);
             return;
         }
 
@@ -253,34 +352,41 @@ public class EnemyController : MonoBehaviour {
                 float x2 = target.position.x;
                 float y2 = target.position.y;
                 myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
+                myAttack.GetComponent<AttackController>().owner = gameObject;
                 myAttack.GetComponent<AttackController>().myEnemy = "Player";
+                myAttack.GetComponent<AttackController>().myFriend = "Minion";
                 myAttack.GetComponent<AttackController>().myDamage = damage;
+                myAttack.GetComponent<AttackController>().friendlyFire = friendlyFire;
+                myAttack.GetComponent<AttackController>().lifetime = attackCooldown;
                 if (!facingRight)
                     myAttack.GetComponent<SpriteRenderer>().flipX = true;
-                SoundManagerController.PlaySound("Swish");
+                SoundManagerController.instance.PlaySound("Swish", 1f);
+                
             }
             // Ranged attack
             else if (ranged && timeSinceLastAttack <= 0 && bullets > 0)
             {
                 bullets -= 1;
-                timeSinceLastAttack = attackSpeed;
-                float x2 = transform.position.x;
-                float y2 = transform.position.y;
+                timeSinceLastAttack = attackCooldown;
+                float x2 = gunTip.transform.position.x;
+                float y2 = gunTip.transform.position.y;
                 myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
                 myAttack.GetComponent<BulletController>().target = target;
                 myAttack.GetComponent<BulletController>().accuracy = accuracy;
                 myAttack.GetComponent<BulletController>().damage = damage;
                 //myAttack.GetComponent<BulletController>().accuracy = accuracy;
-                SoundManagerController.PlaySound("Gun");
+                SoundManagerController.instance.PlaySound("Gun", gunSoundVolume);
+                // Update goldy aim reticle
+                // target.GetComponent<PlayerController>().goldyAim = true;
             }
             else if (ranged && bullets <= 0)
             {
                 state = States.reload;
-                SoundManagerController.PlaySound("Reload");
+                SoundManagerController.instance.PlaySound("Reload", 1f);
             }
 
         }
-
+        
         //--- Trigger
         if (!ranged && !myAttack)
         {
@@ -289,11 +395,14 @@ public class EnemyController : MonoBehaviour {
             if (!target)
             {
                 state = States.idle;
+                myAnimator.SetBool("Attack", false);
             }
             // Otters too far away?
             else if (Vector2.Distance(transform.position, target.position) > attackRange)
             {
                 state = States.chase;
+                myAnimator.SetBool("Attack", false);
+                
             }
 
         }
@@ -302,7 +411,7 @@ public class EnemyController : MonoBehaviour {
             // No Otters?
             if (!target)
             {
-                state = States.idle;
+                state = States.idle;               
             }
             // Otters too far away?
             else if (Vector2.Distance(transform.position, target.position) > attackRange)
@@ -327,6 +436,8 @@ public class EnemyController : MonoBehaviour {
     private void Reload()
     {
 
+        ChangeToAnimation("Idle");
+
         // Log
         Debug.Log("My state is now reload");
 
@@ -334,6 +445,7 @@ public class EnemyController : MonoBehaviour {
         if (ranged && bullets >= magazineSize)
         {
             state = States.idle;
+            ChangeToAnimation("Idle");          
         }
 
         // Reload
@@ -386,8 +498,27 @@ public class EnemyController : MonoBehaviour {
         Instantiate(deathPrefab, transform.position, Quaternion.Euler(xy, xy, z));
 
         // Sound
-        SoundManagerController.PlaySound("GoblinDeath");
-        //SoundManagerController.PlaySound("Explosion");
+        SoundManagerController.instance.PlaySound("GoblinDeath", 1f);
+        //SoundManagerController.instance.PlaySound("Explosion");
+
+        // Choose new minion to control
+        if (isControlled)
+        {
+            GameObject[] minionList;
+            minionList = GameObject.FindGameObjectsWithTag("Minion");
+            if (minionList.Length > 1)
+            {
+                GameObject newControlled = minionList[Random.Range(0, minionList.Length)];
+                do 
+                {
+                    newControlled = minionList[Random.Range(0, minionList.Length)];
+                }
+                while (newControlled.GetComponent<EnemyController>().isControlled == true);
+                newControlled.GetComponent<EnemyController>().isControlled = true;
+                newControlled.GetComponent<EnemyController>().safetyDuration += safetyDurationHotswap;
+            }
+            
+        }
 
         // Destroy
         Destroy(gameObject);
@@ -404,7 +535,7 @@ public class EnemyController : MonoBehaviour {
         
         // Special effects
         Instantiate(bloodPrefab, transform.position, transform.rotation);
-        SoundManagerController.PlaySound("Hit");
+        SoundManagerController.instance.PlaySound("Hit", 1f);
         StartCoroutine("HurtColor");
 
     }
@@ -494,64 +625,33 @@ public class EnemyController : MonoBehaviour {
         }
     }
 
-
-    /*
-    private void Move()
+    // Function: Drawing order
+    void DrawOrder()
     {
-        if (isControlled)
-        {
-            float moveHorizontal = Input.GetAxis("Horizontal");
-            float moveVertical = Input.GetAxis("Vertical");
-            Vector3 movement = new Vector3(moveHorizontal, moveVertical, 0.0f);
-            GetComponent<Rigidbody2D>().velocity = movement * moveSpeed;
 
-            if (moveHorizontal > 0 && !facingRight)
-            {
-                Flip();
-            }
-            else if (moveHorizontal < 0 && facingRight)
-            {
-                Flip();
-            }
-        } else
+        int i = (Mathf.RoundToInt(transform.position.y*1000));
+        mySprite.sortingOrder = -i;
+
+        if (weapon) 
         {
-            float step = moveSpeed * Time.deltaTime;
-            transform.position = Vector3.MoveTowards(transform.position, player.position, step);
+            weapon.GetComponent<Weapon>().mySprite.sortingOrder = -i;
         }
+
     }
 
-    private void Attack()
+    // Function: Change animation
+    private void ChangeToAnimation(string newAnimation)
     {
-        if (isControlled)
-        {
-            //TODO: Get real inputs
-            if (Input.GetButton("Fire1"))
-            {
-                Debug.Log("Enemy Attacks");
-            }
-        }
-    }
 
-    private void Defensive()
-    {
-        Debug.Log("Enemy Defence");
-    }
+        //Debug.Log("Animation changed");
 
-    private void SpecialAttack()
-    {
-        Debug.Log("Enemy Special Attacks");
-    }
+        myAnimator.SetBool("Idle", false);
+        myAnimator.SetBool("Attack", false);
+        myAnimator.SetBool("Walk", false);
+        myAnimator.SetBool("Dodge", false);
 
-	#region Flip
-    private void Flip()
-    {
-        Debug.Log("Flip");
-        facingRight = !facingRight;
-        Vector3 theScale = transform.localScale;
-        theScale.x *= -1;
-        transform.localScale = theScale;
+        myAnimator.SetBool(newAnimation, true);
+
     }
-	#endregion Flip
-    */
 
 }
