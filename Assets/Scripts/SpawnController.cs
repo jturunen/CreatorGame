@@ -76,17 +76,17 @@ public class SpawnController : MonoBehaviour {
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[0]);
-                SoundManagerController.PlaySound("Hit");
+                SoundManagerController.instance.PlaySound("Hit", 1f);
             }
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[1]);
-                SoundManagerController.PlaySound("Hit");
+                SoundManagerController.instance.PlaySound("Hit", 1f);
             }
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 SpawnToPoint(minionsFromPrefabs[2]);
-                SoundManagerController.PlaySound("Reload");
+                SoundManagerController.instance.PlaySound("Reload", 1f);
             }
             /*if (Input.GetKeyDown(KeyCode.DownArrow))
             {
@@ -106,10 +106,10 @@ public class SpawnController : MonoBehaviour {
         {
             if (SceneManager.GetActiveScene().name == "creatingPhaseScene")
             {
-                SceneManager.LoadScene("jariScene", LoadSceneMode.Single);
+                SceneManager.LoadScene("Chinatown", LoadSceneMode.Single);
                 fighting = true; //Creating phase is over, start fighting
             }
-            else if (SceneManager.GetActiveScene().name == "jariScene")
+            else if (SceneManager.GetActiveScene().name == "Chinatown")
             {
                 waitTime -= Time.deltaTime;
                 if (waitTime < 0)
@@ -185,7 +185,7 @@ public class SpawnController : MonoBehaviour {
             //Change to chosen sprite minion, (and back to white)
             spawnPointSprite.color = new Color(1f, 1f, 1f, 1f);
             //Find the chosen minion from the list and get its sprite
-            spawnPointSprite.sprite = chosenMinionsList[currentMinionCount].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
+            //spawnPointSprite.sprite = chosenMinionsList[currentMinionCount].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
         } else
         {
             spawnPointToFind.SetActive(true);

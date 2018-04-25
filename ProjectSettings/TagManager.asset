@@ -9,6 +9,8 @@ TagManager:
   - PlayerTarget
   - PowerUp
   - Container
+  - winOtters
+  - winMobBoss
   layers:
   - Default
   - TransparentFX

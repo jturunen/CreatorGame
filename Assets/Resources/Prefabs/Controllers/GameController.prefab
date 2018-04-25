@@ -9,45 +9,54 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1669692482682416}
+  m_RootGameObject: {fileID: 1298886964410752}
   m_IsPrefabParent: 1
---- !u!1 &1669692482682416
+--- !u!1 &1298886964410752
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4127475138667370}
-  - component: {fileID: 114721894011679604}
+  - component: {fileID: 4290434411627212}
+  - component: {fileID: 114158553944354884}
   m_Layer: 0
   m_Name: GameController
-  m_TagString: Untagged
+  m_TagString: GameController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4127475138667370
+--- !u!4 &4290434411627212
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1669692482682416}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_GameObject: {fileID: 1298886964410752}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114721894011679604
+--- !u!114 &114158553944354884
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1669692482682416}
+  m_GameObject: {fileID: 1298886964410752}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b7f2086a7ff2e542bdba1be46f410e0, type: 3}
+  m_Script: {fileID: 11500000, guid: 8106c1903cd76e649a161db81ce3978c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  minionIndex: 0
+  winOtters: {fileID: 1481564968486654, guid: d6305e5983c00b34f9a0585ceee35016, type: 2}
+  winMobboss: {fileID: 1060151255224312, guid: 8d13a64b885b7874c8fd11f6d9a60f3b, type: 2}
+  allMinionsSpawned: 0
+  testMode: 1
+  timeBetweenRounds: 3
+  bloodPrefab: {fileID: 198841792396536960, guid: 7f3fb577c5b57984ea4a26dcca01d7dd,
+    type: 2}
+  bloodParticles: {fileID: 0}

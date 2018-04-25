@@ -5,12 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/creatingPhaseScene.unity
     guid: ea730983121a2204c87e3e8893e2f7bb
   - enabled: 0
     path: Assets/Scenes/fightScene.unity
     guid: 06c32f79bd036e24890cbef0da7403f5
   - enabled: 1
-    path: Assets/Scenes/jariScene.unity
+    path: Assets/Scenes/Chinatown.unity
     guid: 2ff45ab8f0c97d54d97c6b7644482227

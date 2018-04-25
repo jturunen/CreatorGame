@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 212285087127685460}
   m_Layer: 0
   m_Name: Otters win
-  m_TagString: Untagged
+  m_TagString: winOtters
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

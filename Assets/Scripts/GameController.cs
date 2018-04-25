@@ -6,20 +6,30 @@ using UnityEngine.SceneManagement;
 public class GameController : MonoBehaviour {
 
     public int minionIndex = 0; // Index for minion naming
-
     public GameObject winOtters;
     public GameObject winMobboss;
     public bool allMinionsSpawned;
     public bool testMode; // Test mode for spawning?
     public float timeBetweenRounds;
+    public ParticleSystem bloodPrefab; // Blood visual effect
+    public ParticleSystem bloodParticles; // Ilpo shit for blood, i dunno
+
+    public static GameController instance; // Create static instance for others to use this
 
     private GameObject myWin;
     private float timeBetweenRoundsNow = 0.0f;
     private float timeUntilNextRound = 0.0f;
 
+    public void CreateParticle(Vector3 position)
+    {
+        bloodParticles.transform.position = position;
+        bloodParticles.Play();
+    }
+
     // Use this for initialization
     void Start () {
-		
+		instance = this;
+        bloodParticles = Instantiate(bloodPrefab, transform.position, Quaternion.identity);
 	}
 	
 	// Update is called once per frame
@@ -53,7 +63,7 @@ public class GameController : MonoBehaviour {
             myWin = Instantiate(winOtters, new Vector3(0, 0, 0), Quaternion.identity);
             timeUntilNextRound = timeBetweenRounds;
             // Sound
-            SoundManagerController.PlaySound("Win");
+            SoundManagerController.instance.PlaySound("Win", 1f);
         }
 
         // If no Otters
@@ -62,7 +72,7 @@ public class GameController : MonoBehaviour {
             myWin = Instantiate(winMobboss, new Vector3(0, 0, 0), Quaternion.identity);
             timeUntilNextRound = timeBetweenRounds;
             // Sound
-            SoundManagerController.PlaySound("Win");
+            SoundManagerController.instance.PlaySound("Win", 1f);
         }
 
         // Handle time between rounds

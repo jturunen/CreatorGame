@@ -155,8 +155,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 1
-  lootChance: 50
-  loot: {fileID: 1819101633420400, guid: 10f5cfddab9a61e48bdfe20bf983dac0, type: 2}
+  lootChance: 100
+  loot1: {fileID: 1819101633420400, guid: 5c7468d12ce38bc47b222173e41011bc, type: 2}
+  loot2: {fileID: 1819101633420400, guid: 10f5cfddab9a61e48bdfe20bf983dac0, type: 2}
+  loot3: {fileID: 1819101633420400, guid: e84565d30c88b214d9382d9ac204c1c8, type: 2}
+  loot4: {fileID: 1819101633420400, guid: 7ebf2b8419d738745b0f327343598fa8, type: 2}
   deathPrefab: {fileID: 1964543311967598, guid: cf44ab7e7ba4f284ebb8855bf7304590,
     type: 2}
 --- !u!212 &212014472750078452
