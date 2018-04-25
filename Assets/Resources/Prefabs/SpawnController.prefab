@@ -60,5 +60,14 @@ MonoBehaviour:
   spawnRate: 0.25
   spawner: {fileID: 1106442564481132, guid: 169dbf1f03f6c4b408dfa50234cdecd3, type: 2}
   waitTime: 2
+  maxGoldfishSelections: 2
+  maxTrashySelections: 2
+  maxBigsySelections: 2
   spawnPointPrefab: {fileID: 1120982450915122, guid: 2edc77e2d93b83f4b91718e7277dd1a5,
     type: 2}
+  trashy: {fileID: 21300000, guid: 51de36f3185e7fa4f96b10101d32f8fd, type: 3}
+  trashyDisabled: {fileID: 21300000, guid: e5f280e167db8854ba8b4d8ae2ed896d, type: 3}
+  goldfish: {fileID: 21300000, guid: 9d050bcc5e9d16f4c9de3ee27310ef90, type: 3}
+  goldfishDisabled: {fileID: 21300000, guid: ca70746ba24827c47bdbfcc16614004c, type: 3}
+  bigsy: {fileID: 21300000, guid: 47be6ec8e9be4054eb2de0d441da6fac, type: 3}
+  bigsyDisabled: {fileID: 21300000, guid: 4d399474f6daf014a87ecb156dbc07d1, type: 3}

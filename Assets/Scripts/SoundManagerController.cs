@@ -7,7 +7,7 @@ public class SoundManagerController : MonoBehaviour {
     public static AudioClip mainMusic, goblinDieSound1, goblinDieSound2, goblinDieSound3,
         goblinDieSound4, goblinDieSound5, goblinDieSound6, goblinDieSound7, swish1, swish2, swish3, gun,
         hit1, hit2, hit3, hit4, hit5, woahLong, woah1, woah2, woah3, woah4, woah5, pumpReload2, explosion1,
-        fart1, fart2, fart3;
+        fart1, fart2, fart3, denied;
     static AudioSource audioSrc;
     public bool playMusic;
     public AudioClip pierusound;
@@ -52,6 +52,9 @@ public class SoundManagerController : MonoBehaviour {
         woah3 = Resources.Load<AudioClip>("woah3");
         woah4 = Resources.Load<AudioClip>("woah4");
         woah5 = Resources.Load<AudioClip>("woah5");
+
+        denied = Resources.Load<AudioClip>("sound_denied");
+
 
         audioSrc = GetComponent<AudioSource>();
 
@@ -222,6 +225,9 @@ public class SoundManagerController : MonoBehaviour {
                 audioSrc.PlayOneShot(pumpReload2);
                 break;
 
+            case "Denied":
+                audioSrc.PlayOneShot(denied);
+                break;
         }
     }
 

@@ -11,9 +11,9 @@ public class SpawnController : MonoBehaviour {
     * Then for example, when players enter room, go through list and spawn monsters then.
     */
     #region Variables
-
+    [Tooltip("Positions where Spawners will spawn. X is horizontal, Y is vertical")]
     public float spawnerMinX, spawnerMinY, spawnerMaxX, spawnerMaxY;
-
+    [Tooltip("For disabling the spawner mode and activating single spawns")]
     public bool SpawnerMode = true; //For testing, disable or activate spawnermode
 
     public int maxMinions = 0; //How many units can be spawned to map
@@ -35,6 +35,10 @@ public class SpawnController : MonoBehaviour {
 
     private List<GameObject> spawnPointObjectList = new List<GameObject>(); //Store spawnpoints so that they can be found when inactivated
 
+    public int maxGoldfishSelections, maxTrashySelections, maxBigsySelections; //Restrict how many of minion type can be chosen to the map
+
+    private int goldFishSelections, trashySelections, bigsySelections; //How many of minion type is chosen
+
     //Spawnpoint variables
     private List<Vector2> minimapSpawnPointPositions = new List<Vector2>(); //List for minimap spawnpoint positions
     private List<Vector2> levelSpawnPointPositions = new List<Vector2>(); //List for spawnpoint positions in the level
@@ -42,7 +46,11 @@ public class SpawnController : MonoBehaviour {
     private GameObject spawnPointObject; //Temporary spawnpoint object to name it on instantiate
     private GameObject spawnPointToFind; //Temporary spawnpoint object to find it on scene
 
-
+    //Sprites for selections
+    public Sprite trashy, trashyDisabled, goldfish, goldfishDisabled, bigsy, bigsyDisabled;
+    GameObject trashySpriteObject;
+    GameObject bigsySpriteObject;
+    GameObject goldfishSpriteObject;
     #endregion
 
     // Use this for initialization
@@ -66,6 +74,14 @@ public class SpawnController : MonoBehaviour {
 
         //Initialize list for minions that will be chosen to the level
         chosenMinionsList = new List<GameObject>();
+
+        //Find the sprite objects to set the sprites (for disabled sprite)
+        trashySpriteObject = GameObject.Find("selection_minion_trashy");
+        bigsySpriteObject = GameObject.Find("selection_minion_shark");
+        goldfishSpriteObject = GameObject.Find("selection_minion_goldfish");
+
+
+
     }
 
     // Update is called once per frame
@@ -73,20 +89,51 @@ public class SpawnController : MonoBehaviour {
     {
         if (currentMinionCount <= maxMinions && Time.time > nextSpawn && !fighting) {
             //TODO: change buttons to Fire1 etc. after the 4th controller 
+            
             if (Input.GetKeyDown(KeyCode.RightArrow))
+            { 
+                if(bigsySelections < maxBigsySelections)
+                {
+                    bigsySelections++;
+                    SpawnToPoint(minionsFromPrefabs[0]);
+                    SoundManagerController.PlaySound("Hit");
+                    if (bigsySelections == maxBigsySelections)
+                    {
+                        //Show that selection is disabled
+                        Debug.Log("Bigsy disabled");
+                        bigsySpriteObject.GetComponent<SpriteRenderer>().sprite = bigsyDisabled;
+                    }
+                } else
+                {
+                    SoundManagerController.PlaySound("Denied");
+                }
+            } 
+
+            if (Input.GetKeyDown(KeyCode.LeftArrow) && trashySelections < maxTrashySelections)
             {
-                SpawnToPoint(minionsFromPrefabs[0]);
-                SoundManagerController.PlaySound("Hit");
-            }
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
+                trashySelections++;
                 SpawnToPoint(minionsFromPrefabs[1]);
                 SoundManagerController.PlaySound("Hit");
+                if (trashySelections == maxTrashySelections)
+                {
+                    //Show that selection is disabled
+                    Debug.Log("Trashy disabled");
+                    trashySpriteObject.GetComponent<SpriteRenderer>().sprite = trashyDisabled;
+
+                }
             }
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (Input.GetKeyDown(KeyCode.UpArrow) && goldFishSelections < maxGoldfishSelections)
             {
+                goldFishSelections++;
                 SpawnToPoint(minionsFromPrefabs[2]);
                 SoundManagerController.PlaySound("Reload");
+                if (goldFishSelections == maxGoldfishSelections)
+                {
+                    //Show that selection is disabled
+                    Debug.Log("Goldfish disabled");
+                    goldfishSpriteObject.GetComponent<SpriteRenderer>().sprite = goldfishDisabled;
+
+                }
             }
             /*if (Input.GetKeyDown(KeyCode.DownArrow))
             {
