@@ -372,7 +372,6 @@ public class PlayerController : MonoBehaviour {
     // State: Dodge Start/Initialization
     void DodgeStart()
     {
-
         // Log
         Debug.Log("My state is now Dodge Start");
 

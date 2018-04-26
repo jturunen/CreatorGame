@@ -60,5 +60,18 @@ MonoBehaviour:
   spawnRate: 0.25
   spawner: {fileID: 1106442564481132, guid: 169dbf1f03f6c4b408dfa50234cdecd3, type: 2}
   waitTime: 2
+  maxGoldfishSelections: 2
+  maxTrashySelections: 2
+  maxBigsySelections: 2
+  minimap: {fileID: 0}
+  sea: {fileID: 21300000, guid: 529d64a7fce18a347beeea317f54944a, type: 3}
+  chinatown: {fileID: 21300000, guid: 6b3b803adb777fc4e9ba06a488dfa0e7, type: 3}
+  bar: {fileID: 21300000, guid: cccb77e1b40ef7c4cb54c20abdeffe9c, type: 3}
   spawnPointPrefab: {fileID: 1120982450915122, guid: 2edc77e2d93b83f4b91718e7277dd1a5,
     type: 2}
+  trashy: {fileID: 21300000, guid: e5dcd7a583d8bc347a7f69d9f281fdb8, type: 3}
+  trashyDisabled: {fileID: 21300000, guid: 7c9123d1010f20741ac2a1af6e8f7b2f, type: 3}
+  goldfish: {fileID: 21300000, guid: c739f37c0c9f5244585f1f775c4f6d64, type: 3}
+  goldfishDisabled: {fileID: 21300000, guid: a24a0ed30b4afa944ad5a39b0d4a582b, type: 3}
+  bigsy: {fileID: 21300000, guid: f1f7aee63c1a60747a60d23ad1d5eaac, type: 3}
+  bigsyDisabled: {fileID: 21300000, guid: 0b403532958bea94f9438bf08441f030, type: 3}
