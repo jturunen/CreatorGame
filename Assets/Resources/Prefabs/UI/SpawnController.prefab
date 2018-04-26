@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1763411406668468}
+  m_IsPrefabParent: 1
+--- !u!1 &1763411406668468
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4435106261712430}
+  - component: {fileID: 114680007514340344}
+  m_Layer: 0
+  m_Name: SpawnController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4435106261712430
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1763411406668468}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114680007514340344
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1763411406668468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de3b1321bc134274c85a2279e2aef357, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnerMinX: -9
+  spawnerMinY: -4
+  spawnerMaxX: 9
+  spawnerMaxY: 0
+  SpawnerMode: 1
+  maxMinions: 4
+  spawnRate: 0.25
+  spawner: {fileID: 1106442564481132, guid: 169dbf1f03f6c4b408dfa50234cdecd3, type: 2}
+  waitTime: 2
+  maxGoldfishSelections: 2
+  maxTrashySelections: 2
+  maxBigsySelections: 2
+  spawnPointPrefab: {fileID: 1120982450915122, guid: 2edc77e2d93b83f4b91718e7277dd1a5,
+    type: 2}
+  trashy: {fileID: 21300000, guid: 51de36f3185e7fa4f96b10101d32f8fd, type: 3}
+  trashyDisabled: {fileID: 21300000, guid: e5f280e167db8854ba8b4d8ae2ed896d, type: 3}
+  goldfish: {fileID: 21300000, guid: 9d050bcc5e9d16f4c9de3ee27310ef90, type: 3}
+  goldfishDisabled: {fileID: 21300000, guid: ca70746ba24827c47bdbfcc16614004c, type: 3}
+  bigsy: {fileID: 21300000, guid: 47be6ec8e9be4054eb2de0d441da6fac, type: 3}
+  bigsyDisabled: {fileID: 21300000, guid: 4d399474f6daf014a87ecb156dbc07d1, type: 3}

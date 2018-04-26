@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class AttackController : MonoBehaviour {
 
-    public float lifetime; // How long attack will last
+    public bool friendlyFire; // Should attack hit friendly targets?
+
     public string myEnemy; // What character should attack damage
+    public string myFriend; // Who is friendly to this attack
+
+    public float lifetime; // How long attack will last
     public float myDamage; // How much damage to deal
     public float myStun; // How long time the attack stuns
+
     public GameObject owner; // Who created this attack;
 
     private Collider2D parentCollider;
@@ -39,6 +44,25 @@ public class AttackController : MonoBehaviour {
 
     }
 
+    private void DealDamage(GameObject other)
+    {
+        switch (other.gameObject.tag) {
+            case "Player":
+                other.gameObject.GetComponent<PlayerController>().damageTaken += myDamage;
+                break;
+            
+            case "Minion":
+                other.gameObject.GetComponent<EnemyController>().damageTaken += myDamage;
+                other.gameObject.GetComponent<EnemyController>().stun += myStun;
+                break;
+            
+            case "Container":
+                other.gameObject.GetComponent<ContainerController>().health -= myDamage;
+                break;
+
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
 
@@ -51,16 +75,22 @@ public class AttackController : MonoBehaviour {
             {
 
                 case "Player":
-                    other.gameObject.GetComponent<PlayerController>().damageTaken += myDamage;
+                    DealDamage(other.gameObject);                   
                     break;
 
                 case "Minion":
-                    other.gameObject.GetComponent<EnemyController>().damageTaken += myDamage;
-                    other.gameObject.GetComponent<EnemyController>().stun += myStun;
+                    if (!friendlyFire && owner.gameObject.tag != "Minion")
+                    {
+                        DealDamage(other.gameObject);
+                    }
+                    else if (friendlyFire)
+                    {
+                        DealDamage(other.gameObject);
+                    }
                     break;
 
                 case "Container":
-                    other.gameObject.GetComponent<ContainerController>().health -= myDamage;
+                    DealDamage(other.gameObject);
                     break;
 
                 case "PowerUp":

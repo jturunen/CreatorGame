@@ -10,7 +10,7 @@ public class EffectController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        SoundManagerController.PlaySound(deathSound);
+        SoundManagerController.instance.PlaySound(deathSound, 1f);
     }
 	
 	// Update is called once per frame

@@ -4,54 +4,64 @@ using UnityEngine;
 
 public class SoundManagerController : MonoBehaviour {
 
-    public static AudioClip mainMusic, goblinDieSound1, goblinDieSound2, goblinDieSound3,
+    // Mega cool stuff Ilpo told me, no need to use static void bullshit
+    public static SoundManagerController instance;
+    public AudioClip mainMusic, goblinDieSound1, goblinDieSound2, goblinDieSound3,
         goblinDieSound4, goblinDieSound5, goblinDieSound6, goblinDieSound7, swish1, swish2, swish3, gun,
         hit1, hit2, hit3, hit4, hit5, woahLong, woah1, woah2, woah3, woah4, woah5, pumpReload2, explosion1,
-        fart1, fart2, fart3;
+        fart1, fart2, fart3, denied;
     static AudioSource audioSrc;
     public bool playMusic;
-    public AudioClip pierusound;
+    public int health = 5;
+    //public AudioClip gunSound;
+    //public float gunVolume; // Sound volume for gun shooting sound
+    //public float swishVolume; // Sound volume for swish/melee attack sound
 
     // Use this for initialization
     void Start()
     {
+        
+        instance = this;
 
-        mainMusic = Resources.Load<AudioClip>("trimmedTeknoaxe");
+        mainMusic = Resources.Load<AudioClip>("Audio/trimmedTeknoaxe");
 
-        goblinDieSound1 = Resources.Load<AudioClip>("aargh1");
-        goblinDieSound2 = Resources.Load<AudioClip>("aargh2");
-        goblinDieSound3 = Resources.Load<AudioClip>("aargh3");
-        goblinDieSound4 = Resources.Load<AudioClip>("aargh4");
-        goblinDieSound5 = Resources.Load<AudioClip>("aargh5");
-        goblinDieSound6 = Resources.Load<AudioClip>("aargh6");
-        goblinDieSound7 = Resources.Load<AudioClip>("aargh7");
+        goblinDieSound1 = Resources.Load<AudioClip>("Audio/aargh1");
+        goblinDieSound2 = Resources.Load<AudioClip>("Audio/aargh2");
+        goblinDieSound3 = Resources.Load<AudioClip>("Audio/aargh3");
+        goblinDieSound4 = Resources.Load<AudioClip>("Audio/aargh4");
+        goblinDieSound5 = Resources.Load<AudioClip>("Audio/aargh5");
+        goblinDieSound6 = Resources.Load<AudioClip>("Audio/aargh6");
+        goblinDieSound7 = Resources.Load<AudioClip>("Audio/aargh7");
 
-        hit1 = Resources.Load<AudioClip>("hit1");
-        hit2 = Resources.Load<AudioClip>("hit2");
-        hit3 = Resources.Load<AudioClip>("hit3");
-        hit4 = Resources.Load<AudioClip>("hit4");
-        hit5 = Resources.Load<AudioClip>("hit5");
+        hit1 = Resources.Load<AudioClip>("Audio/hit1");
+        hit2 = Resources.Load<AudioClip>("Audio/hit2");
+        hit3 = Resources.Load<AudioClip>("Audio/hit3");
+        hit4 = Resources.Load<AudioClip>("Audio/hit4");
+        hit5 = Resources.Load<AudioClip>("Audio/hit5");
 
-        swish1 = Resources.Load<AudioClip>("swish1");
-        swish2 = Resources.Load<AudioClip>("swish2");
-        swish3 = Resources.Load<AudioClip>("swish3");
+        swish1 = Resources.Load<AudioClip>("Audio/swish1");
+        swish2 = Resources.Load<AudioClip>("Audio/swish2");
+        swish3 = Resources.Load<AudioClip>("Audio/swish3");
 
-        gun = Resources.Load<AudioClip>("chaingun");
+        gun = Resources.Load<AudioClip>("Audio/chaingun");
 
-        pumpReload2 = Resources.Load<AudioClip>("pumpReload2");
+        pumpReload2 = Resources.Load<AudioClip>("Audio/pumpReload2");
 
-        explosion1 = Resources.Load<AudioClip>("explosion1");
+        explosion1 = Resources.Load<AudioClip>("Audio/explosion1");
 
-        fart1 = Resources.Load<AudioClip>("fart1");
-        fart2 = Resources.Load<AudioClip>("fart2");
-        fart3 = Resources.Load<AudioClip>("fart3");
+        fart1 = Resources.Load<AudioClip>("Audio/fart1");
+        fart2 = Resources.Load<AudioClip>("Audio/fart2");
+        fart3 = Resources.Load<AudioClip>("Audio/fart3");
 
-        woahLong = Resources.Load<AudioClip>("woahLong");
-        woah1 = Resources.Load<AudioClip>("woah1");
-        woah2 = Resources.Load<AudioClip>("woah2");
-        woah3 = Resources.Load<AudioClip>("woah3");
-        woah4 = Resources.Load<AudioClip>("woah4");
-        woah5 = Resources.Load<AudioClip>("woah5");
+        woahLong = Resources.Load<AudioClip>("Audio/woahLong");
+        woah1 = Resources.Load<AudioClip>("Audio/woah1");
+        woah2 = Resources.Load<AudioClip>("Audio/woah2");
+        woah3 = Resources.Load<AudioClip>("Audio/woah3");
+        woah4 = Resources.Load<AudioClip>("Audio/woah4");
+        woah5 = Resources.Load<AudioClip>("Audio/woah5");
+
+        denied = Resources.Load<AudioClip>("sound_denied");
+
 
         audioSrc = GetComponent<AudioSource>();
 
@@ -71,7 +81,7 @@ public class SoundManagerController : MonoBehaviour {
 
     }
 
-    public static void PlaySound(string clip)
+    public void PlaySound(string clip, float volume)
     {
         switch (clip)
         {
@@ -160,7 +170,8 @@ public class SoundManagerController : MonoBehaviour {
 
                 
             case "Gun":
-                audioSrc.PlayOneShot(gun);
+                //audioSrc.volume = 0.1f;
+                audioSrc.PlayOneShot(gun, volume);
                 break;
 
             case "Explosion":
@@ -222,6 +233,9 @@ public class SoundManagerController : MonoBehaviour {
                 audioSrc.PlayOneShot(pumpReload2);
                 break;
 
+            case "Denied":
+                audioSrc.PlayOneShot(denied);
+                break;
         }
     }
 

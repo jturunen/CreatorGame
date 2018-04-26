@@ -7,9 +7,12 @@ public class ContainerController : MonoBehaviour {
     public float health; // Health until die
     public float lootChance; // Chance to drop loot
 
-    public GameObject loot; // What to drop
-    public GameObject deathPrefab; // Death animation
+    public GameObject loot1; // What to drop
+    public GameObject loot2; // What to drop
+    public GameObject loot3; // What to drop
+    public GameObject loot4; // What to drop
 
+    public GameObject deathPrefab; // Death animation
     private SpriteRenderer mySprite; // My sprite
 
 	// Use this for initialization
@@ -21,7 +24,7 @@ public class ContainerController : MonoBehaviour {
 	void Update () {
 
         // Drawing order
-        int i = (Mathf.RoundToInt(transform.position.y));
+        int i = (Mathf.RoundToInt(transform.position.y*1000));
         mySprite.sortingOrder = -i;
 
         // Health and die
@@ -31,7 +34,9 @@ public class ContainerController : MonoBehaviour {
             // Drop loot randomly
             if (Random.value * 100 <= lootChance)
             {
-                Instantiate(loot, transform.position, transform.rotation);   
+                GameObject[] lootlist = { loot1, loot2, loot3, loot4 };
+                GameObject randomLoot = lootlist[Random.Range(0, lootlist.Length)];
+                Instantiate(randomLoot, transform.position, transform.rotation);   
             }
 
             // Die

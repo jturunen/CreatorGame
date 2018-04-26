@@ -33,10 +33,10 @@ public class PowerUpController : MonoBehaviour {
 
             // Give player speed boost
             case "Player":
-                collision.GetComponent<PlayerController>().powerupSpeedLength = powerupSpeedLength;
-                collision.GetComponent<PlayerController>().powerupSpeedEffect = powerupSpeedEffect;
-                collision.GetComponent<PlayerController>().powerupDamageLength = powerupDamageLength;
-                collision.GetComponent<PlayerController>().powerupDamageEffect = powerupDamageEffect;
+                collision.GetComponent<PlayerController>().powerup.speedDuration = powerupSpeedLength;
+                collision.GetComponent<PlayerController>().powerup.speedEffect = powerupSpeedEffect;
+                collision.GetComponent<PlayerController>().powerup.damageDuration = powerupDamageLength;
+                collision.GetComponent<PlayerController>().powerup.damageEffect = powerupDamageEffect;
                 collision.GetComponent<PlayerController>().hitPoints += powerupHealthEffect;
                 // Destroy
                 Destroy(gameObject);
