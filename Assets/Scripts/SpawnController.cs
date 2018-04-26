@@ -42,6 +42,10 @@ public class SpawnController : MonoBehaviour {
 
     private int goldFishSelections, trashySelections, bigsySelections; //How many of minion type is chosen
 
+    public GameObject minimap;
+    public Sprite sea, chinatown, bar;
+    private int round;
+
     //Spawnpoint variables
     private List<Vector2> minimapSpawnPointPositions = new List<Vector2>(); //List for minimap spawnpoint positions
     private List<Vector2> levelSpawnPointPositions = new List<Vector2>(); //List for spawnpoint positions in the level
@@ -58,8 +62,24 @@ public class SpawnController : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        //DontDestroyOnLoad(this.gameObject);
+        DontDestroyOnLoad(this.gameObject);
         instance = this;
+        round = RoundController.roundIndex;
+        if(round == 0)
+        {
+            minimap.GetComponent<SpriteRenderer>().sprite = sea;
+            maxMinions = 2;
+        }
+        if (round == 1)
+        {
+            minimap.GetComponent<SpriteRenderer>().sprite = bar;
+            maxMinions = 3;
+        }
+        if (round == 2)
+        {
+            minimap.GetComponent<SpriteRenderer>().sprite = chinatown;
+            maxMinions = 4;
+        }
         // Get Minions folder as object.
         Object[] subListObjects = Resources.LoadAll("Prefabs/Characters", typeof(GameObject));
 
@@ -94,7 +114,7 @@ public class SpawnController : MonoBehaviour {
         if (currentMinionCount <= maxMinions && Time.time > nextSpawn && !fighting) {
             //TODO: change buttons to Fire1 etc. after the 4th controller 
             #region firstMinion
-            if (Input.GetKeyDown(KeyCode.RightArrow))
+            if (Input.GetKeyDown("joystick 2 button 2") || Input.GetKeyDown(KeyCode.UpArrow))
             { 
                 if(bigsySelections < maxBigsySelections)
                 {
@@ -116,7 +136,7 @@ public class SpawnController : MonoBehaviour {
             #endregion
             #region secondMinion
 
-            if (Input.GetKeyDown(KeyCode.LeftArrow) && trashySelections < maxTrashySelections)
+            if (Input.GetKeyDown("joystick 2 button 1") || Input.GetKeyDown(KeyCode.RightArrow) && trashySelections < maxTrashySelections)
             {
                 trashySelections++;
                 SpawnToPoint(minionsFromPrefabs[1]);
@@ -131,7 +151,7 @@ public class SpawnController : MonoBehaviour {
             }
             #endregion
             #region secondMinion
-            if (Input.GetKeyDown(KeyCode.UpArrow) && goldFishSelections < maxGoldfishSelections)
+            if (Input.GetKeyDown("joystick 2 button 0") || Input.GetKeyDown(KeyCode.LeftArrow) && goldFishSelections < maxGoldfishSelections)
             {
                 goldFishSelections++;
                 SpawnToPoint(minionsFromPrefabs[2]);
@@ -151,17 +171,31 @@ public class SpawnController : MonoBehaviour {
         // Spawn enemies from list
         if (currentMinionCount == maxMinions && !minionSpawning)
         {
-            if (SceneManager.GetActiveScene().name == "creatingPhaseScene")
+            fighting = true; //Creating phase is over, start fighting
+
+            waitTime -= Time.deltaTime;
+            if (waitTime < 0)
             {
-                SceneManager.LoadScene("Chinatown", LoadSceneMode.Single);
-                fighting = true; //Creating phase is over, start fighting
-            }
-            else if (SceneManager.GetActiveScene().name == "Chinatown")
-            {
-                waitTime -= Time.deltaTime;
-                if (waitTime < 0)
+                if (SceneManager.GetActiveScene().name == "creationPhase")
                 {
+                    switch (round)
+                    {
+                        case 0:
+                            SceneManager.LoadScene("FirstScene", LoadSceneMode.Single);
+                            break;
+                        case 1:
+                            SceneManager.LoadScene("Bar", LoadSceneMode.Single);
+                            break;
+                        case 2:
+                            SceneManager.LoadScene("Chinatown", LoadSceneMode.Single);
+                            break;
+                    }
+                }
+                else if (SceneManager.GetActiveScene().name != "creationPhase")
+                {
+
                     SpawnUnitsToPoints();
+
                 }
             }
         }
@@ -226,6 +260,7 @@ public class SpawnController : MonoBehaviour {
         //Find current spawnpoint from the scene and access its sprite
         //spawnPointToFind = GameObject.Find("SpawnPoint" + currentMinionCount);
         spawnPointToFind = spawnPointObjectList[currentMinionCount];
+        spawnPointToFind.transform.localScale = new Vector2(0.7f,0.7f);
         SpriteRenderer spawnPointSprite = spawnPointToFind.GetComponent<SpriteRenderer>();
         if (toUsed)
         {
@@ -234,12 +269,12 @@ public class SpawnController : MonoBehaviour {
             //Change to chosen sprite minion, (and back to white)
             spawnPointSprite.color = new Color(1f, 1f, 1f, 1f);
             //Find the chosen minion from the list and get its sprite
-            //spawnPointSprite.sprite = chosenMinionsList[currentMinionCount].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite;
+            spawnPointSprite.sprite = chosenMinionsList[currentMinionCount].GetComponent<SpriteRenderer>().sprite;
         } else
         {
             spawnPointToFind.SetActive(true);
             //Change to next, (red)
-            spawnPointSprite.color = new Color(1f, 0f, 0f, 1f);
+            //spawnPointSprite.color = new Color(1f, 0f, 0f, 1f);
         }
 
     }
@@ -247,12 +282,12 @@ public class SpawnController : MonoBehaviour {
     private void createSpawnPoints()
     {
         //Creating list for minimap spawnpoints (Temporary solution)
-        minimapSpawnPointPositions.Add(new Vector2(-7.5f, -2.5f));
+        minimapSpawnPointPositions.Add(new Vector2(-2.5f, -2f));
         // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -2));
-        minimapSpawnPointPositions.Add(new Vector2(-2.5f, -2.5f));
-        minimapSpawnPointPositions.Add(new Vector2(-7.5f, -4));
-        // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -4));
+        minimapSpawnPointPositions.Add(new Vector2(3f, -2));
         minimapSpawnPointPositions.Add(new Vector2(-2.5f, -4));
+        // minimapSpawnPointPositions.Add(new Vector2(-5.5f, -4));
+        minimapSpawnPointPositions.Add(new Vector2(3f, -4));
 
         //Creating list for spawnpoints on the level (where chosen minions will be spawned) (Temporary solution)
         levelSpawnPointPositions.Add(new Vector2(spawnerMinX, spawnerMaxY));

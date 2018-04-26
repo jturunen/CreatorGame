@@ -5,12 +5,27 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/creatingPhaseScene.unity
     guid: ea730983121a2204c87e3e8893e2f7bb
   - enabled: 0
     path: Assets/Scenes/fightScene.unity
     guid: 06c32f79bd036e24890cbef0da7403f5
   - enabled: 1
+    path: Assets/Scenes/creationPhase.unity
+    guid: 21f968539ba62b249bd41ddf335e8fb4
+  - enabled: 1
     path: Assets/Scenes/Chinatown.unity
     guid: 2ff45ab8f0c97d54d97c6b7644482227
+  - enabled: 1
+    path: Assets/Scenes/FirstScene.unity
+    guid: b439248cfb3847141b668daccdd938c6
+  - enabled: 1
+    path: Assets/Scenes/Bar.unity
+    guid: 064020147ee238d4195172889ee212f8
+  - enabled: 1
+    path: Assets/Scenes/MobBossWins.unity
+    guid: 52a0ac7b4d8cf1d4480d3d43922fd36f
+  - enabled: 1
+    path: Assets/Scenes/OttersWin.unity
+    guid: 723df1f1ea3cde246a5f09bd59a1dbc1

@@ -14,11 +14,21 @@ public class SpawnerController : MonoBehaviour {
     public float bigsySpawnRate = 12;
    
     //Maximum spawns for minions
-    public int trashyMaxSpawns = 4;
-    public int goldfishMaxSpawns = 3;
-    public int bigsyMaxSpawns = 2;
+    public int trashyMaxSpawnsRoundOne = 2;
+    public int goldfishMaxSpawnsRoundOne = 2;
+    public int bigsyMaxSpawnsRoundOne = 2;
 
-    private int maxSpawns = 5;
+    //Maximum spawns for minions
+    public int trashyMaxSpawnsRoundTwo = 3;
+    public int goldfishMaxSpawnsRoundTwo = 3;
+    public int bigsyMaxSpawnsRoundTwo = 3;
+
+    //Maximum spawns for minions
+    public int trashyMaxSpawnsRoundThree = 4;
+    public int goldfishMaxSpawnsRoundThree = 4;
+    public int bigsyMaxSpawnsRoundThree = 4;
+
+    private int maxSpawns = 2;
 
     private GameObject gameControllerObject; //Game controller for indexing
     private GameController gameController = null; //Script from gameController
@@ -27,13 +37,16 @@ public class SpawnerController : MonoBehaviour {
     public float spawnRate = 0.1F; // How fast minions spawn
     private float nextSpawn = 0.0F;
     private bool noControl =true;
-
+    private int round;
     #endregion
     // Use this for initialization
     void Start () {
         //Find the GameController object, for indexing the minions
         gameControllerObject = GameObject.Find("GameController");
         gameController = gameControllerObject.GetComponent<GameController>();
+
+        round = RoundController.roundIndex;
+
     }
 	
 	// Update is called once per frame
@@ -59,17 +72,18 @@ public class SpawnerController : MonoBehaviour {
     {
         if (noControl)
         {
+
             //find first spawned minion
-            Debug.Log(noControl);
             GameObject minionToControl = GameObject.Find(chosenMinion.name +"(Clone)0");
-            Debug.Log(minionToControl);
+            Debug.Log("minionToControl" + minionToControl);
 
             if (minionToControl != null)
             {
                 minionToControl.GetComponent<EnemyController>().isControlled = true;
+                //Toggle
+                noControl = false;
             }
-            //Toggle
-            noControl = false;
+
         }
     }
 
@@ -82,15 +96,48 @@ public class SpawnerController : MonoBehaviour {
         {
             case "Enemy":
                 spawnRate = trashySpawnRate;
-                maxSpawns = trashyMaxSpawns;
+                if (round == 0)
+                {
+                    maxSpawns = trashyMaxSpawnsRoundOne;
+                }
+                if (round == 1)
+                {
+                    maxSpawns = trashyMaxSpawnsRoundTwo;
+                }
+                if (round == 2)
+                {
+                    maxSpawns = trashyMaxSpawnsRoundThree;
+                }
                 break;
-            case "Goldfish":
+            case "Goldy":
                 spawnRate = goldfishSpawnRate;
-                maxSpawns = goldfishMaxSpawns;
+                if (round == 0)
+                {
+                    maxSpawns = goldfishMaxSpawnsRoundOne;
+                }
+                if (round == 1)
+                {
+                    maxSpawns = goldfishMaxSpawnsRoundTwo;
+                }
+                if (round == 2)
+                {
+                    maxSpawns = goldfishMaxSpawnsRoundThree;
+                }
                 break;
             case "Bigsy":
                 spawnRate = bigsySpawnRate;
-                maxSpawns = bigsyMaxSpawns;
+                if (round == 0)
+                {
+                    maxSpawns = bigsyMaxSpawnsRoundOne;
+                }
+                if (round == 1)
+                {
+                    maxSpawns = bigsyMaxSpawnsRoundTwo;
+                }
+                if (round == 2)
+                {
+                    maxSpawns = bigsyMaxSpawnsRoundThree;
+                }
                 break;
         }
 
