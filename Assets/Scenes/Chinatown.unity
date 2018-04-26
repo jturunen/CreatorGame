@@ -220,7 +220,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1778028419636560, guid: 70dfe9d47d28d41448a9082d514386d2, type: 2}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 70dfe9d47d28d41448a9082d514386d2, type: 2}
@@ -959,7 +959,7 @@ Prefab:
     - target: {fileID: 114119412450059412, guid: a0d3c4f633c26be4d998492a26681af9,
         type: 2}
       propertyPath: playMusic
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a0d3c4f633c26be4d998492a26681af9, type: 2}
@@ -1016,7 +1016,7 @@ Prefab:
     - target: {fileID: 114801027572373494, guid: 06b6341b4e65fa44c90551f6afe8cb22,
         type: 2}
       propertyPath: gamepad
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114801027572373494, guid: 06b6341b4e65fa44c90551f6afe8cb22,
         type: 2}
@@ -2076,7 +2076,7 @@ Prefab:
     - target: {fileID: 114709815992144816, guid: 504676b7fdbde0242b85543afd95a852,
         type: 2}
       propertyPath: gamepad
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1799964880924300, guid: 504676b7fdbde0242b85543afd95a852, type: 2}
       propertyPath: m_IsActive
@@ -2137,7 +2137,7 @@ Prefab:
     - target: {fileID: 114158553944354884, guid: f0dfb79c2c7f474428b833d276d48e11,
         type: 2}
       propertyPath: testMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f0dfb79c2c7f474428b833d276d48e11, type: 2}

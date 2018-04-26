@@ -5,17 +5,15 @@ using UnityEngine;
 public class AttackController : MonoBehaviour {
 
     public bool friendlyFire; // Should attack hit friendly targets?
-
     public string myEnemy; // What character should attack damage
     public string myFriend; // Who is friendly to this attack
-
     public float lifetime; // How long attack will last
     public float myDamage; // How much damage to deal
     public float myStun; // How long time the attack stuns
-
     public GameObject owner; // Who created this attack;
 
     private Collider2D parentCollider;
+    [HideInInspector] public bool facingRight; // Is this character facing right?
     //private Transform target;
 
 	// Use this for initialization
@@ -24,6 +22,14 @@ public class AttackController : MonoBehaviour {
         //transform.position = Vector2.MoveTowards(transform.position, target.position, 4 * Time.deltaTime);
 
         parentCollider = gameObject.GetComponentInParent<Collider2D>();
+
+        // Function: Flip character
+        if (!facingRight)
+        {
+            Vector3 theScale = transform.localScale;
+            theScale.x *= -1;
+            transform.localScale = theScale;
+        }
 
 	}
 	
@@ -40,6 +46,7 @@ public class AttackController : MonoBehaviour {
         if (lifetime < 0)
         {
             Destroy(gameObject);
+            // gameObject.SetActive(false);
         }
 
     }

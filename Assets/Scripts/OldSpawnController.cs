@@ -13,6 +13,11 @@ public class OldSpawnController : MonoBehaviour {
 
     private int currentSpawn = 0;
 
+    bool button0;
+    bool button1;
+    bool button2;
+    bool button3;
+
     // Use this for initialization
     void Start()
     {
@@ -22,6 +27,13 @@ public class OldSpawnController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        if (GameController.instance.gamepadMobBoss)
+        {
+            button0 = Input.GetButtonDown("Gamepad Attack 2");
+            button1 = Input.GetButtonDown("Gamepad Dodge 2");
+            button2 = Input.GetButtonDown("Gamepad 2 Button 2");
+            button3 = Input.GetButtonDown("Gamepad 2 Button 3");
+        }
 
         /*
 		// Attack
@@ -32,7 +44,7 @@ public class OldSpawnController : MonoBehaviour {
 			SoundManagerScript.PlaySound("Swish");
 		}
 		*/
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        if (button2)
         {
             for (int i = 0; i < trashyAmount; i++)
             {
@@ -43,7 +55,7 @@ public class OldSpawnController : MonoBehaviour {
 
         }
 
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        if (button3)
         {
             for (int i = 0; i < goldyAmount; i++)
             {
@@ -53,20 +65,13 @@ public class OldSpawnController : MonoBehaviour {
             SpawnNext();
         }
 
-        if (Input.GetKeyDown(KeyCode.RightArrow))
+        if (button1)
         {
             for (int i = 0; i < bigsyAmount; i++)
             {
                 currentMonster = Instantiate(enemy6, transform.position, Quaternion.identity);
                 monsters.Add(currentMonster);
             }
-            SpawnNext();
-        }
-
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            currentMonster = Instantiate(enemy2, transform.position, Quaternion.identity);
-            monsters.Add(currentMonster);
             SpawnNext();
         }
 

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PowerUpController : MonoBehaviour {
 
+    public float attackSpeedEffect;
+    public float attackSpeedDuration;
 
     public float powerupSpeedLength;
     public float powerupSpeedEffect;
@@ -12,6 +14,8 @@ public class PowerUpController : MonoBehaviour {
 
     public float powerupDamageLength;
     public float powerupDamageEffect;
+
+    public int money;
 
 
     // Use this for initialization
@@ -25,19 +29,28 @@ public class PowerUpController : MonoBehaviour {
 	}
 
     // Someone picks up this power up
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         
-        switch (collision.gameObject.tag)
+        switch (other.gameObject.tag)
         {
 
             // Give player speed boost
             case "Player":
-                collision.GetComponent<PlayerController>().powerup.speedDuration = powerupSpeedLength;
-                collision.GetComponent<PlayerController>().powerup.speedEffect = powerupSpeedEffect;
-                collision.GetComponent<PlayerController>().powerup.damageDuration = powerupDamageLength;
-                collision.GetComponent<PlayerController>().powerup.damageEffect = powerupDamageEffect;
-                collision.GetComponent<PlayerController>().hitPoints += powerupHealthEffect;
+
+                other.GetComponent<PlayerController>().powerup.attackSpeedDuration = attackSpeedDuration;
+                other.GetComponent<PlayerController>().powerup.attackSpeedEffect = attackSpeedEffect;
+                
+                other.GetComponent<PlayerController>().powerup.speedDuration = powerupSpeedLength;
+                other.GetComponent<PlayerController>().powerup.speedEffect = powerupSpeedEffect;
+                
+                other.GetComponent<PlayerController>().powerup.damageDuration = powerupDamageLength;
+                other.GetComponent<PlayerController>().powerup.damageEffect = powerupDamageEffect;
+                
+                other.GetComponent<PlayerController>().hitPoints += powerupHealthEffect;
+                
+                other.GetComponent<PlayerController>().money += money;          
+
                 // Destroy
                 Destroy(gameObject);
                 break;

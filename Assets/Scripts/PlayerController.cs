@@ -41,6 +41,9 @@ public class Dodge
 public class PowerUp
 {
     
+    public float attackSpeedDuration; // How long the attack speed power up lasts
+    public float attackSpeedEffect; // How much speed the speed power up gives
+
     public float speedDuration; // How long the speed power up lasts
     public float speedEffect; // How much speed the speed power up gives
     
@@ -56,23 +59,23 @@ public class PlayerController : MonoBehaviour {
 
     #region Variables
 
-    Animator anim;
+    Animator animator;
+    SpriteRenderer spriteRenderer;
     
     //[System.NonSerialized]
-    [Header("header test from ilpo")]
+    [Header("Header example from Ilpo")]
     public Attack attack; // Create variable that holds all attack stats neatly
     public Dodge dodge; // Create variable that holds all dodge stats neatly
     public PowerUp powerup; // Create variable that holds all powerup stats neatly
     public int playerNumber; // What is the player number
+    public int money; // How much money character has
     public float moveSpeed = 0.0f; // Movement speed
     public float hitPoinsMax; // Maximum hit points of character
     public float hitPoints = 0.0f; // Health
     public float flashLength; // How long hitflash will last
     [HideInInspector] public float damageTaken = 0f; // Amount of incoming damage
-    [Header("header test from ilpo")]
-    public bool jumpKick; // Should character "jump kick" coming out of dodge?
     public bool gamepad; // Gamepad controlled instead of keyboard?
-    public bool goldyAim; // Is Goldy aiming at this character?
+    [HideInInspector] public bool facingRight = true; // Is the character facing right?
     public GameObject attackPrefab; // The attack prefab this character uses
     public GameObject deathPrefab; // Death particle/effect
     public GameObject bloodPrefab; // Blood particle/effect
@@ -82,8 +85,8 @@ public class PlayerController : MonoBehaviour {
     public Canvas healthBarCanvas; // Health bar canvas for this character
     public GameObject weapon; // What weapon is this character using
     public GameObject dodgeIndicator; // Indicator to show if dodge is ready to use
-    public GameObject goldyAimReticle; // Indicator to show if Goldy is shooting this character
-
+    public GameObject deadObject; // Dead object for this character
+    public GameObject deadObject2; // Dead object for this character
 
     private float moveHorizontal; // Horizontal movement, keyboard
     private float moveVertical; // Vertical movement, keyboard
@@ -94,34 +97,31 @@ public class PlayerController : MonoBehaviour {
     private float moveSpeedBonus; // Bonus move speed from speed power up
     private float damageBonus; // Current damage bonus
     private float m_MySliderValue; //Value from the slider, and it converts to speed level
-    private bool facingRight = true; // Is the character facing right?
     private bool flashActive;  // Is the hitflash active?   
     private bool attackStarted = false; // Did character already start attack in attack state?
     private bool dodgeStarted; // Dodge roll started yet?
     private bool buttonAttack; // Attack button being pressed?
     private bool buttonDodge; // Dodge button pressed?
-    private enum States { idle, move, attack, attackStart, flee, dead, dodgeStart, dodge, win }; // Enum for state machine
+    private enum States { idle, move, attack, attackStart, flee, dead, dodgeStart, dodge,
+     win, deadStart }; // Enum for state machine
     private States state = States.idle; // State
-    private GameObject myAttack; // Characters current attack, default should be null
-    private SpriteRenderer mySprite;
+    public GameObject myAttack; // Characters current attack, default should be null 
 
     #endregion Variables
 
     // Use this for initialization
     void Start () {
-        anim = GetComponent<Animator>();
-        mySprite = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         dodge.timeSinceLastDodge = dodge.cooldown;
     }
 
     // Update is called once per frame
     void Update () {
-        //Debug.Log(state);
-        //this.transform.Translate(0, 1 * Time.deltaTime, 0, Space.World);
-        //transform.Rotate(0, 0, Time.deltaTime * -10000);
 
         // Read input from the player
-        readInput();
+        ReadInput();
 
         // States
         switch (state)
@@ -147,141 +147,99 @@ public class PlayerController : MonoBehaviour {
             case States.attackStart:
                 AttackStart();
                 break;
-            /*
-            case States.flee:
-                Flee();
-                break;
             case States.dead:
                 Dead();
                 break;
-            */
+            case States.deadStart:
+                DeadStart();
+                break;
+   
         }       
         
-        // Take damage
-        if (damageTaken > 0) handleDamage();
-        
-        // Die
-        if (hitPoints <= 0) Dead();
+        // Update stuff for living Otters
+        if (state != States.dead)
+        {
+            // Take damage
+            if (damageTaken > 0) HandleDamage();
 
-        // Power ups
-        updatePowerUps();
+            // Power ups
+            UpdatePowerUps();
 
-        /*
-        // Game won?
-        GameObject testi = GameObject.FindWithTag("GameController");
-        if (testi.GetComponent<GameController>().winOtters)
-        {
-            state = States.win;
-        }
-        */
-        if (GameObject.FindGameObjectWithTag("winOtters"))
-        {
-            state = States.win;
-        }
+            // Otters have won the game?
+            if (GameController.instance.ottersHaveWon) state = States.win;
 
-        // Drawing order
-        DrawOrder();
+            // Drawing order
+            DrawOrder();
 
-        // Update dodge timer
-        if (dodge.timeSinceLastDodge < dodge.cooldown)
-        {
-            dodge.timeSinceLastDodge += 1 * Time.deltaTime;
-        }
-        else if (dodge.timeSinceLastDodge >= dodge.cooldown)
-        {
-            dodgeIndicator.GetComponent<SpriteRenderer>().enabled = true;
-        }
-        
-        // Update health bar
-        if (state == States.idle || state == States.move) 
-        {
+            // Update dodge timer
+            UpdateDodge();
             
-            if (healthBarCanvas.enabled == false)
-            {
-                healthBarCanvas.enabled = true;
-            }
-            
-            healthBar.fillAmount = hitPoints / hitPoinsMax;
-            
-        }
+            // Update health bar
+            UpdateHealthBar();
 
-        // Update Goldy aim reticle
-        if (goldyAim)
-        {
-            goldyAimReticle.GetComponent<SpriteRenderer>().enabled = true;
         }
-        else
-        {
-            goldyAimReticle.GetComponent<SpriteRenderer>().enabled = false;
-        }
-        if (true)
-        {
-            goldyAim = false;
-        }
+    
 
     }
 
     // State: Idle
-    private void Idle()
+    void Idle()
     {
 
         // Log
         Debug.Log("My state is now Idle");
 
-        // Triggers
         #region Trigger
         
-        // User inputs to move
+        // Idle -> Move. Move button pressed
         if (moveHorizontal != 0f || moveVertical != 0f )
         {
             //Debug.Log("Move button pressed");
             state = States.move;
+            ChangeToAnimation("Walk");
+            return;
         }
 
-        // User input to attack
+        // Idle -> Attack. Attack button pressed
         if (buttonAttack)
         {
             //Debug.Log("Attack button pressed");
             state = States.attackStart;
-            
+            return;
+    
         }
 
         #endregion Trigger
 
         #region Behaviour
 
-        // Visual
-        ChangeToAnimation("Idle");
-
-        // Reset rotation
-        transform.localEulerAngles = new Vector3(0, 0, 0);
-
         #endregion Behaviour
 
     }
 
     // State: Move
-    private void Move()
+    void Move()
     {
-        
+        // Log
         Debug.Log("My state is now move");
 
         #region Trigger
 
-        // No user input
+        // Move -> Idle. No user input
         if (moveHorizontal == 0.0f && moveVertical == 0.0f)
         {
-            state = States.idle;            
+            state = States.idle;  
+            ChangeToAnimation("Idle");          
         }
 
-        // User inputs attack
+        // Move -> Attack. User inputs attack
         if (buttonAttack)
         {
             attackStarted = false;
             state = States.attackStart;        
         }
 
-        // Dodge
+        // Move -> Dodge. Dodge button pressed
         if (buttonDodge && dodge.timeSinceLastDodge >= dodge.cooldown)
         {
             state = States.dodgeStart;
@@ -292,9 +250,6 @@ public class PlayerController : MonoBehaviour {
         #endregion Trigger
 
         #region Behaviour
-
-        // Visual
-        ChangeToAnimation("Walk");
 
         // Flip character
         Flip();
@@ -307,71 +262,61 @@ public class PlayerController : MonoBehaviour {
     }
 
     // State: Attack Start/Init
-    private void AttackStart()
+    void AttackStart()
     {
+
+        #region Triggers
+
+        // AttackStart -> Attack.
+        state = States.attack;
+
+        #endregion Triggers
+
         #region Behaviour
 
-        // Create attack prefab left or right
-        if (!myAttack && !attackStarted)
-        //if (!attackStarted && !myAttack)
-        {
+        // Log
+        Debug.Log("My state is now AttackStart");
 
-            float y2 = transform.position.y;
-
-            if (facingRight)
-            {
+        // Create attack object
+        float x2 = transform.position.x; 
+        float y2 = transform.position.y;
+        myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), transform.rotation);
         
-                float x2 = transform.position.x + attack.range;
-                //myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity, transform);
-                myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
-                myAttack.GetComponent<AttackController>().myDamage = attack.damage() + damageBonus;
-                myAttack.GetComponent<AttackController>().lifetime = 1/attack.speed;
-            }
-            else if (!facingRight)
-            {
-                
-                float x2 = transform.position.x - attack.range;
-                //myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity, transform);
-                myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
-                //myAttack.GetComponent<SpriteRenderer>().flipX = true;
-                myAttack.transform.localScale = new Vector3(-1, 1, 1);
-                myAttack.GetComponent<AttackController>().myDamage = attack.damage() + damageBonus;
-                myAttack.GetComponent<AttackController>().lifetime = 1/attack.speed;
+        // Fix attack direction and size
+        if (facingRight) myAttack.GetComponent<AttackController>().facingRight = true;
 
-            }
+        // Give attack stats
+        myAttack.GetComponent<AttackController>().myDamage = attack.damage() + damageBonus;
+        myAttack.GetComponent<AttackController>().lifetime = 1 / (attack.speed + powerup.attackSpeedEffect);
+        myAttack.GetComponent<AttackController>().myEnemy = "Minion";
+        myAttack.GetComponent<AttackController>().owner = gameObject;
+        
+        // Sound
+        SoundManagerController.instance.PlaySound("Swish", 1f);
 
-            myAttack.GetComponent<AttackController>().myEnemy = "Minion";
-            myAttack.GetComponent<AttackController>().owner = gameObject;
-            
-            attackStarted = true;
-            // Sound
-            SoundManagerController.instance.PlaySound("Swish", 1f);
-            // State
-            state = States.attack;
-            // Visual
-            ChangeToAnimation("Attack");
-
-        }
+        // Visual
+        ChangeToAnimation("Attack");
 
         #endregion Behaviour
+
     }
 
     // State: Attack
-    private void Attack ()
+    void Attack ()
     {
         // Log
-        //Debug.Log("My state is now attack");
+        Debug.Log("My state is now attack");
 
-        // Triggers
         #region Triggers
 
-        // Go idle when attack is done
-        if (!myAttack && attackStarted)
+        // Attack -> Idle. Attack is done
+        if (!myAttack)
         {
-            attackStarted = false;
             state = States.idle;
             // Reset animation speed back to normal
-            anim.speed = 1;
+            animator.speed = 1;
+            ChangeToAnimation("Idle");
+            return;
         }
 
         #endregion Triggers
@@ -379,37 +324,53 @@ public class PlayerController : MonoBehaviour {
         #region Behaviour
 
         // Change animation speed to match attack speed
-        anim.speed = attack.speed;
+        animator.speed = attack.speed + powerup.attackSpeedEffect;
 
         #endregion Behaviour
 
     }
 
-    // State: Dead
-    private void Dead()
+    // State: Dead Start
+    void DeadStart()
     {
-
+        // Log
+        Debug.Log("My state is now Dead");
+        
         // Visual effect
+        if (Random.Range(0,4) == 0)
+            Instantiate(deadObject, transform.position, transform.rotation);
+        else
+            Instantiate(deadObject2, transform.position, transform.rotation);
         Instantiate(bloodPrefab, transform.position, transform.rotation);
         Instantiate(deathPrefab, transform.position, transform.rotation);
 
         // Sound
         SoundManagerController.instance.PlaySound("GoblinDeath", 1f);
 
-        // Destroy
-        Destroy(gameObject);
+        // State
+        state = States.dead;
+
+    }
+
+    // State: Dead
+    void Dead()
+    {
+        // Log
+        Debug.Log("My state is now Dead");
         
+        Destroy(gameObject);
     }
 
     // State: Win
-    private void Win()
+    void Win()
     {
         Debug.Log("My state is now win");
-        transform.Rotate(new Vector3(0, 0, -1), Time.deltaTime * 1800, Space.Self);
+        if (GameController.instance.winDance) 
+            transform.Rotate(new Vector3(0, 0, -1), Time.deltaTime * 1800, Space.Self);
     }
 
     // State: Dodge Start/Initialization
-    private void DodgeStart()
+    void DodgeStart()
     {
 
         // Log
@@ -435,7 +396,7 @@ public class PlayerController : MonoBehaviour {
     }    
 
     // State: Dodge
-    private void Dodge()
+    void Dodge()
     {
         
         // Log
@@ -444,27 +405,29 @@ public class PlayerController : MonoBehaviour {
         // Trigger
         #region Trigger
 
-        // Go idle if roll is done
+        // Dodge -> Idle. Roll is done
         if (dodgeDistanceNow >= dodge.distance)
         {
-
-            state = States.idle;
-            dodgeStarted = false;
-            
             // Reset rotation
-            if (!jumpKick) transform.localEulerAngles = new Vector3(0, 0, 0);
+            transform.eulerAngles = new Vector2(0,0);
 
+            dodgeStarted = false;
+            dodgeDistanceNow = 0;
+            state = States.idle;
+            ChangeToAnimation("Idle");
+            return;
         }
 
-        // User inputs attack
+        // Dodge -> Attack. User inputs attack
         if (buttonAttack)
         {
-            state = States.attackStart;
-            dodgeStarted = false;
-
             // Reset rotation
-            if (!jumpKick) transform.localEulerAngles = new Vector3(0, 0, 0);
-
+            transform.eulerAngles = new Vector2(0,0);
+            
+            dodgeStarted = false;
+            dodgeDistanceNow = 0;
+            state = States.attackStart;
+            return;
         }
 
         #endregion Trigger
@@ -484,33 +447,23 @@ public class PlayerController : MonoBehaviour {
         }
 
         // Dodge 
-        if (facingRight)
-        {          
-            float x = moveHorizontal * dodge.speed * Time.deltaTime;
-            float y = moveVertical * dodge.speed * Time.deltaTime;
-            transform.Translate(new Vector3(x, y), Space.World);
-            dodgeDistanceNow += (1 * dodge.speed * Time.deltaTime) + (1 * dodge.speed * Time.deltaTime);
-            //transform.Rotate(0, 0, Time.deltaTime * -10000);
-            // Rotate clockwise
-            transform.Rotate(new Vector3(0,0,-1), Time.deltaTime * 1800, Space.Self);
-        }           
+        float x = moveHorizontal * dodge.speed * Time.deltaTime;
+        float y = moveVertical * dodge.speed * Time.deltaTime;
+        transform.Translate(new Vector3(x, y), Space.World);
+        dodgeDistanceNow += (1 * dodge.speed * Time.deltaTime) + (1 * dodge.speed * Time.deltaTime);
+        
+        // Rotate 
+        if (facingRight) 
+            transform.Rotate(new Vector3(0,0,-1), Time.deltaTime * 1800, Space.Self);        
         else
-        {
-            float x = moveHorizontal * dodge.speed * Time.deltaTime;
-            float y = moveVertical * dodge.speed * Time.deltaTime;
-            transform.Translate(new Vector3(x, y), Space.World);
-            dodgeDistanceNow += (1 * dodge.speed * Time.deltaTime) + (1 * dodge.speed * Time.deltaTime);
-            // Rotate anticlockwise
             transform.Rotate(new Vector3(0,0,1), Time.deltaTime * 1800, Space.Self);
-            
-        }
 
         #endregion Behaviour
 
     }
 
     // Function: Flip character
-    private void Flip()
+    void Flip()
     {
 
         // Flip character horizontally
@@ -532,7 +485,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     // Function: Read input
-    private void readInput()
+    void ReadInput()
     {
         switch (playerNumber)
         {
@@ -557,10 +510,21 @@ public class PlayerController : MonoBehaviour {
                 break;
 
             case 2:
-                moveHorizontal = Input.GetAxis("Gamepad Horizontal 2");
-                moveVertical = Input.GetAxis("Gamepad Vertical 2");
-                buttonAttack = Input.GetButtonDown("Gamepad Attack 2");
-                buttonDodge = Input.GetButtonDown("Gamepad Dodge 2");
+
+                if (gamepad)
+                {
+                    moveHorizontal = Input.GetAxis("Gamepad Horizontal 2");
+                    moveVertical = Input.GetAxis("Gamepad Vertical 2");
+                    buttonAttack = Input.GetButtonDown("Gamepad Attack 2");
+                    buttonDodge = Input.GetButtonDown("Gamepad Dodge 2");
+                }
+                else 
+                {
+                    moveHorizontal = Input.GetAxis("Keyboard Horizontal 2");
+                    moveVertical = Input.GetAxis("Keyboard Vertical 2");
+                    buttonAttack = Input.GetButtonDown("Keyboard Attack 2");
+                    buttonDodge = Input.GetButtonDown("Keyboard Dodge 2");
+                }
                 break;
 
             case 3:
@@ -569,18 +533,21 @@ public class PlayerController : MonoBehaviour {
                 buttonDodge = Input.GetButtonDown("Gamepad Dodge 3");
                 buttonAttack = Input.GetButtonDown("Gamepad Attack 3");
                 break;
-
+            /*
             case 4:
-                moveHorizontal = Input.GetAxis("Horizontal_P4");
-                moveVertical = Input.GetAxis("Vertical_P4");
+                moveHorizontal = Input.GetAxis("Gamepad Horizontal 4");
+                moveVertical = Input.GetAxis("Gamepad Vertical 4");
+                buttonDodge = Input.GetButtonDown("Gamepad Dodge 4");
+                buttonAttack = Input.GetButtonDown("Gamepad Attack 4");
                 break;
+             */
 
         }
 
     }
 
     // Function: Handle incoming damage
-    private void handleDamage()
+    void HandleDamage()
     {
         
         if (state == States.dodge && dodge.safety)
@@ -602,24 +569,46 @@ public class PlayerController : MonoBehaviour {
             GameController.instance.CreateParticle(transform.position);
             SoundManagerController.instance.PlaySound("Hit", 1f);
 
-        }         
+        }
+
+        // Die
+        if (hitPoints <= 0)
+        {
+            state = States.deadStart;
+        }
 
     }
 
     // Function: Change animation
-    private void ChangeToAnimation(string newAnimation)
+    void ChangeToAnimation(string newAnimation)
     {
 
         //Debug.Log("Animation changed");
 
-        anim.SetBool("Idle", false);
-        anim.SetBool("Attack", false);
-        anim.SetBool("Walk", false);
-        anim.SetBool("Dodge", false);
+        animator.SetBool("Idle", false);
+        animator.SetBool("Attack", false);
+        animator.SetBool("Walk", false);
+        animator.SetBool("Dodge", false);
 
-        anim.SetBool(newAnimation, true);
+        animator.SetBool(newAnimation, true);
 
     }
+    
+    /*
+    // Function: Change state
+    void ChangeToState(PlayerController.States newState)
+    {
+        state = newState;
+
+        switch (state)
+        {
+            case States.idle:
+                ChangeToAnimation("Idle");
+                break;
+        }
+
+    }
+    */
 
     // Function: Hit flash
     IEnumerator HurtColor()
@@ -634,8 +623,20 @@ public class PlayerController : MonoBehaviour {
     }
 
     // Function: Update PowerUp things
-    private void updatePowerUps()
+    void UpdatePowerUps()
     {
+        
+        // Attack speed 
+        if (powerup.attackSpeedDuration > 0)
+        {
+            powerup.attackSpeedDuration -= 1 * Time.deltaTime;
+        }
+        else
+        {
+            powerup.attackSpeedEffect = 0;
+        }
+
+        // Movement speed
         if (powerup.speedDuration > 0)
         {
             powerup.speedDuration -= 1 * Time.deltaTime;
@@ -648,6 +649,7 @@ public class PlayerController : MonoBehaviour {
             //transform.localScale = new Vector3(1, 1, 0);
         }
 
+        // Attack damage
         if (powerup.damageDuration > 0)
         {
             powerup.damageDuration -= 1 * Time.deltaTime;
@@ -657,6 +659,7 @@ public class PlayerController : MonoBehaviour {
         {
             damageBonus = 0;
         }
+
     }
 
     // Function: Drawing order
@@ -664,11 +667,44 @@ public class PlayerController : MonoBehaviour {
     {
 
         int i = (Mathf.RoundToInt(transform.position.y*1000));
-        mySprite.sortingOrder = -i;
+        spriteRenderer.sortingOrder = -i;
 
         if (weapon) 
         {
             weapon.GetComponent<Weapon>().mySprite.sortingOrder = -i;
+        }
+
+    }
+
+    // Function: Health bar
+    void UpdateHealthBar() 
+    {
+
+        if (state == States.idle || state == States.move) 
+        {
+            
+            if (healthBarCanvas.enabled == false)
+            {
+                healthBarCanvas.enabled = true;
+            }
+            
+            healthBar.fillAmount = hitPoints / hitPoinsMax;
+            
+        }
+
+    }
+
+    // Function: Dodge
+    void UpdateDodge()
+    {
+
+        if (dodge.timeSinceLastDodge < dodge.cooldown)
+        {
+            dodge.timeSinceLastDodge += 1 * Time.deltaTime;
+        }
+        else if (dodge.timeSinceLastDodge >= dodge.cooldown)
+        {
+            dodgeIndicator.GetComponent<SpriteRenderer>().enabled = true;
         }
 
     }
@@ -682,7 +718,7 @@ public class PlayerController : MonoBehaviour {
 
         m_MySliderValue = GUI.HorizontalSlider(new Rect(45, 25, 200, 60), m_MySliderValue, 0.0F, 1.0F);
         //Make the speed of the Animator match the Slider value
-        anim.speed = m_MySliderValue * 10;
+        animator.speed = m_MySliderValue * 10;
     }
     
      */
