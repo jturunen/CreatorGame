@@ -42,6 +42,11 @@ public class SpawnController : MonoBehaviour {
 
     private int goldFishSelections, trashySelections, bigsySelections; //How many of minion type is chosen
 
+    public GameObject goldyPrefab;
+    public GameObject trashyPrefab;
+    public GameObject bigsyPrefab;
+
+
     public GameObject minimap;
     public Sprite sea, chinatown, bar;
     private int round;
@@ -81,7 +86,7 @@ public class SpawnController : MonoBehaviour {
             maxMinions = 4;
         }
         // Get Minions folder as object.
-        Object[] subListObjects = Resources.LoadAll("Prefabs/Characters", typeof(GameObject));
+       /* Object[] subListObjects = Resources.LoadAll("Prefabs/Characters", typeof(GameObject));
 
         // Get all minion prefabs from folder "Minions" and put to list
         foreach (GameObject subListObject in subListObjects)
@@ -89,7 +94,7 @@ public class SpawnController : MonoBehaviour {
             GameObject listObject = subListObject;
             //Debug.Log("Created minion: " + listObject);
             minionsFromPrefabs.Add(listObject);
-        }
+        }*/
 
         //Create spawnpoints for level minimap
         //Positions are found in spawnPointPositions list
@@ -119,7 +124,7 @@ public class SpawnController : MonoBehaviour {
                 if(bigsySelections < maxBigsySelections)
                 {
                     bigsySelections++;
-                    SpawnToPoint(minionsFromPrefabs[0]);
+                    SpawnToPoint(bigsyPrefab);
                     SoundManagerController.instance.PlaySound("Hit", 1f);
                     if (bigsySelections == maxBigsySelections)
                     {
@@ -139,7 +144,7 @@ public class SpawnController : MonoBehaviour {
             if (Input.GetKeyDown("joystick 2 button 1") || Input.GetKeyDown(KeyCode.RightArrow) && trashySelections < maxTrashySelections)
             {
                 trashySelections++;
-                SpawnToPoint(minionsFromPrefabs[1]);
+                SpawnToPoint(trashyPrefab);
                 if (trashySelections == maxTrashySelections)
                 {
                     //Show that selection is disabled
@@ -154,7 +159,7 @@ public class SpawnController : MonoBehaviour {
             if (Input.GetKeyDown("joystick 2 button 0") || Input.GetKeyDown(KeyCode.LeftArrow) && goldFishSelections < maxGoldfishSelections)
             {
                 goldFishSelections++;
-                SpawnToPoint(minionsFromPrefabs[2]);
+                SpawnToPoint(goldyPrefab);
                 if (goldFishSelections == maxGoldfishSelections)
                 {
                     //Show that selection is disabled

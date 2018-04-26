@@ -80,6 +80,7 @@ public class SpawnerController : MonoBehaviour {
             if (minionToControl != null)
             {
                 minionToControl.GetComponent<EnemyController>().isControlled = true;
+                minionToControl.transform.position = new Vector2(minionToControl.transform.position.x +1 , minionToControl.transform.position.y);
                 //Toggle
                 noControl = false;
             }

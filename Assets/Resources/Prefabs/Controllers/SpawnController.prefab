@@ -63,6 +63,12 @@ MonoBehaviour:
   maxGoldfishSelections: 2
   maxTrashySelections: 2
   maxBigsySelections: 2
+  goldyPrefab: {fileID: 1637916601510576, guid: de6da0c6af35762458169a5fb190e717,
+    type: 2}
+  trashyPrefab: {fileID: 1688664223905400, guid: 05f5a24a347abdd41b0fc7b345098a38,
+    type: 2}
+  bigsyPrefab: {fileID: 1602355075881812, guid: acc7a4f006466e34db91770890ab31ac,
+    type: 2}
   minimap: {fileID: 0}
   sea: {fileID: 21300000, guid: 529d64a7fce18a347beeea317f54944a, type: 3}
   chinatown: {fileID: 21300000, guid: 6b3b803adb777fc4e9ba06a488dfa0e7, type: 3}
