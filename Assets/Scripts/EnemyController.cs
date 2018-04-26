@@ -2,12 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class Bigsy
+{
+    public int specialCount; // How many specials can Bigsy do
+    public float chargeUpDuration; // Duration of charge up
+    public float specialAttackDuration; // Duration of special attack
+    public float specialAttackDamage; // Damage that is dealt with special attack
+    public GameObject specialAttack; // Bigsys special attack
+    // public GameObject attackDamageSprite; // Sprite that is up when damage is dealt
+
+    public float chargeUpDurationNow; // How long current charge up has lasted
+    
+}
+
 public class EnemyController : MonoBehaviour {
     
     #region Variables
+    public Bigsy bigsy; // Bigsy related variable class
     public string myName = ""; // Used for initializing different monsters
     public float moveSpeed = 1.0f; // Movement speed
     public float hitPoints = 1.0f;
+    public float hitPointsMax; // Maximum amount of health
     public float safetyDuration; // Duration of safety/invulnerability/damage immunity
     public float safetyDurationHotswap; // Duration of safety when minion control is changed
     public float attackCooldown; // How low time between attacks
@@ -19,30 +35,42 @@ public class EnemyController : MonoBehaviour {
     public float stun; // Time character is stunned
     public float accuracy; // How accurate does the character shoot
     public float damage; // How much damage to deal;
+    public float attackSpeed; // Attack speed of this character
     public float gunSoundVolume; // Sound volume level
     public bool isControlled = false;
     public bool ranged = false;
     public bool friendlyFire; // Should character damage friendly targets
     public GameObject attackPrefab; // Attack animation/sprite/whateverthefuck
+    public GameObject attackPrefabMobBoss; // Attack object for melee mob boss
     public GameObject deathPrefab; // Death particle/effect
     public GameObject bloodPrefab; // Blood particle/effect
     public GameObject controlledPrefab; // Visual indicator for character being controlled
     public GameObject bottlePrefab; // Bottle prefab for special attack
     public GameObject weapon; // What weapon this character uses
     public GameObject gunTip; // Where is tip of the gun for projectile start place
+    public GameObject loot; // What loot this character drops
+    public GameObject feets; // Where is feets of this character located at
     public bool spawnChoise = false;
 
-    private enum States {idle, chase, attack, flee, dead, reload, stun, hurt}; // Enum for state machine
+    private enum States {idle, chase, attack, flee, dead, reload, stun, hurt,
+    chargeUp, specialAttack}; // Enum for state machine
     private States state = States.idle;
     //private string state = "idle"; // Start of the state machine, turn into enums later
     private Transform target; // Current target AI should chase
     private GameObject myAttack; // Current attack   
+    private GameObject myBullet; // Current attack bullet   
     private SpriteRenderer mySprite; // My sprite
     private bool facingRight = true; // Direction to look at
     private float timeSinceLastAttack = 0f; // Time since last attack
     private float bullets;
     private float timeSpentReloading;
     private Animator myAnimator;
+    private float moveHorizontal; // Horizontal movement, keyboard
+    private float moveVertical; // Vertical movement, keyboard
+    private float moveHorizontal_P1; // Horizontal movement, gamepad
+    private float moveVertical_P1; // Vertical movement, gamepad
+    private bool buttonAttack; // Horizontal movement, gamepad
+    private bool buttonDodge; // Vertical movement, gamepad
     
     #endregion
     
@@ -58,9 +86,21 @@ public class EnemyController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        // Drawing order
-        int i = (Mathf.RoundToInt(transform.position.y*1000));
-        mySprite.sortingOrder = -i;
+        if (GameController.instance.gamepadMobBoss)
+        {
+            moveHorizontal = Input.GetAxis("Gamepad Horizontal 2");
+            moveVertical = Input.GetAxis("Gamepad Vertical 2");
+            buttonAttack = Input.GetButtonDown("Gamepad Attack 2");
+            buttonDodge = Input.GetButtonDown("Gamepad Dodge 2");
+        }
+        else 
+        {
+            moveHorizontal = Input.GetAxis("Keyboard Horizontal 2");
+            moveVertical = Input.GetAxis("Keyboard Vertical 2");
+            buttonAttack = Input.GetButtonDown("Keyboard Attack 2");
+            buttonDodge = Input.GetButtonDown("Keyboard Dodge 2");
+        }
+
     }
 
     // Fixed Update
@@ -96,15 +136,21 @@ public class EnemyController : MonoBehaviour {
                 case States.stun:
                     Stun();
                     break;
+                case States.chargeUp:
+                    ChargeUp();
+                    break;
+                case States.specialAttack:
+                    SpecialAttack();
+                    break;
+                
             }
         }
         else if (isControlled)
         {
             // Movement
             if (!myAttack)
-            {              
-                float moveHorizontal = Input.GetAxisRaw("Keyboard Horizontal 2");
-                float moveVertical = Input.GetAxisRaw("Keyboard Vertical 2");
+            {
+                ChangeToAnimation("Walk");
                 transform.Translate(new Vector3(moveHorizontal, moveVertical) * moveSpeed * Time.deltaTime * 3);
 
                 if (moveHorizontal > 0 && !facingRight)
@@ -143,30 +189,60 @@ public class EnemyController : MonoBehaviour {
             }
 
             // My attack
-            if (Input.GetButton("Keyboard Attack 2") && !myAttack)
+            if (buttonAttack && !myAttack)
             {
                 
                 // Melee attack
                 if (!ranged)
-                {            
+                {
+                    // Create attack object
+                    float x2 = transform.position.x;
+                    float y2 = transform.position.y;
+                    myAttack = Instantiate(attackPrefabMobBoss, new Vector3(x2, y2), transform.rotation);                      
                     
-                    if (facingRight)
-                    {
-                        float x2 = transform.position.x + attackRange;
-                        float y2 = transform.position.y;
-                        myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);                      
-                    }
-                    if (!facingRight)
-                    {
-                        float x2 = transform.position.x - attackRange;
-                        float y2 = transform.position.y;
-                        myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
-                        myAttack.GetComponent<SpriteRenderer>().flipX = true;
-                    }
+                    // Send stats to attack
+                    if (facingRight) myAttack.GetComponent<AttackController>().facingRight = true;
+                    myAttack.GetComponent<AttackController>().owner = gameObject;
                     myAttack.GetComponent<AttackController>().myEnemy = "Player";
                     myAttack.GetComponent<AttackController>().myDamage = damage;
-                    //SoundManagerController.instance.PlaySound("Swish", 1f);
+                    myAttack.GetComponent<AttackController>().lifetime = 1/attackSpeed;
+
+                    // Visual
+                    ChangeToAnimation("Attack");
                     
+                    // Sound
+                    SoundManagerController.instance.PlaySound("Swish", 1f);
+                    
+                }
+
+                // Ranged attack
+                if (ranged && timeSinceLastAttack <= 0)
+                {
+                    bullets -= 1;
+                    timeSinceLastAttack = attackCooldown;
+                    float x2 = gunTip.transform.position.x;
+                    float y2 = gunTip.transform.position.y;
+                    myBullet = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
+                    myBullet.GetComponent<BulletController>().owner = gameObject;
+                    myBullet.GetComponent<BulletController>().accuracy = accuracy;
+                    myBullet.GetComponent<BulletController>().damage = damage;
+                    myBullet.GetComponent<BulletController>().controlled = true;
+
+                    if (moveHorizontal != 0 || moveVertical != 0)
+                    {
+                        myBullet.GetComponent<BulletController>().direction = new Vector2(moveHorizontal, moveVertical);
+                    }
+                    else 
+                    {
+                        if (facingRight)
+                            myBullet.GetComponent<BulletController>().direction = new Vector2(1, 0);
+                        else
+                            myBullet.GetComponent<BulletController>().direction = new Vector2(-1, 0);
+
+                    }
+
+                    SoundManagerController.instance.PlaySound("Gun", gunSoundVolume);
+                
                 }
                 
             }
@@ -234,23 +310,23 @@ public class EnemyController : MonoBehaviour {
         }
 
         // Throw special attack bottle
-        if (bottlePrefab && !isControlled)
+        if (bottlePrefab && !isControlled && target)
         {
             if (Random.Range(0,60) == 0)
             {
-            GameObject myBottle;
-            float x2 = transform.position.x;
-            float y2 = transform.position.y;
-            myBottle = Instantiate(bottlePrefab, new Vector3(x2, y2), Quaternion.identity);
-            myBottle.GetComponent<BulletController>().target = target;
-            bottlePrefab = null;
+                GameObject myBottle;
+                float x2 = transform.position.x;
+                float y2 = transform.position.y;
+                myBottle = Instantiate(bottlePrefab, new Vector3(x2, y2), Quaternion.identity);
+                myBottle.GetComponent<BulletController>().target = target;
+                bottlePrefab = null;
 
             }
 
         }
 
         // Roll after win
-        if (GameObject.FindGameObjectWithTag("winMobBoss"))
+        if (GameController.instance.winDance && GameObject.FindGameObjectWithTag("winMobBoss"))
         {
             transform.Rotate(new Vector3(0, 0, -1), Time.deltaTime * 1800, Space.Self);
         }
@@ -266,6 +342,10 @@ public class EnemyController : MonoBehaviour {
             }
         }
 
+        // Drawing order
+        int i = (Mathf.RoundToInt(transform.position.y*1000));
+        mySprite.sortingOrder = -i;
+
     }
 
     // Stand idle if Otters do not exist
@@ -275,24 +355,18 @@ public class EnemyController : MonoBehaviour {
         Debug.Log("My state is Idle");
         
         //--- Trigger
-        if (Random.Range(0, 30) == 0)
+        if (Random.Range(0, 10) == 0)
         {
             if (GameObject.FindWithTag("Player"))
             {
                 target = FindClosestEnemy("Player").transform;
                 //target = GameObject.FindGameObjectWithTag("Player").transform;
                 state = States.chase;
-
-                if (ranged)
-                {
-                    // Update goldy aim reticle
-                    // target.GetComponent<PlayerController>().goldyAim = true;
-                }
+                ChangeToAnimation("Walk");
 
             }
-        }
-        //--- Audiovisual
-        
+
+        }       
 
     }
 
@@ -305,6 +379,7 @@ public class EnemyController : MonoBehaviour {
         if (!target)
         {
             state = States.idle;
+            ChangeToAnimation("Idle");
             return;
         }
         else if (Vector2.Distance(transform.position, target.position) < fleeRange)
@@ -315,7 +390,7 @@ public class EnemyController : MonoBehaviour {
         else if (Vector2.Distance(transform.position, target.position) < attackRange)
         {
             state = States.attack;
-            myAnimator.SetBool("Attack", true);
+            ChangeToAnimation("Attack");
             return;
         }
 
@@ -328,10 +403,8 @@ public class EnemyController : MonoBehaviour {
         }
 
         //--- Audiovisual
-        // Flip
         Flip();
-
-        //state = States.idle;
+        
     }
 
     // Attack Otters, if they exist inside attack range
@@ -357,9 +430,9 @@ public class EnemyController : MonoBehaviour {
                 myAttack.GetComponent<AttackController>().myFriend = "Minion";
                 myAttack.GetComponent<AttackController>().myDamage = damage;
                 myAttack.GetComponent<AttackController>().friendlyFire = friendlyFire;
-                myAttack.GetComponent<AttackController>().lifetime = attackCooldown;
-                if (!facingRight)
-                    myAttack.GetComponent<SpriteRenderer>().flipX = true;
+                myAttack.GetComponent<AttackController>().lifetime = 1/attackSpeed;
+                if (facingRight)
+                    myAttack.GetComponent<AttackController>().facingRight = true;
                 SoundManagerController.instance.PlaySound("Swish", 1f);
                 
             }
@@ -371,13 +444,11 @@ public class EnemyController : MonoBehaviour {
                 float x2 = gunTip.transform.position.x;
                 float y2 = gunTip.transform.position.y;
                 myAttack = Instantiate(attackPrefab, new Vector3(x2, y2), Quaternion.identity);
+                myAttack.GetComponent<BulletController>().owner = gameObject;
                 myAttack.GetComponent<BulletController>().target = target;
                 myAttack.GetComponent<BulletController>().accuracy = accuracy;
                 myAttack.GetComponent<BulletController>().damage = damage;
-                //myAttack.GetComponent<BulletController>().accuracy = accuracy;
                 SoundManagerController.instance.PlaySound("Gun", gunSoundVolume);
-                // Update goldy aim reticle
-                // target.GetComponent<PlayerController>().goldyAim = true;
             }
             else if (ranged && bullets <= 0)
             {
@@ -388,6 +459,14 @@ public class EnemyController : MonoBehaviour {
         }
         
         //--- Trigger
+        
+        // Bigsy special attack trigger
+        if (myName == "Bigsy" && bigsy.specialCount >= 1 && hitPoints < (hitPointsMax/2))
+        {
+            state = States.chargeUp;
+            ChangeToAnimation("ChargeUp");
+        }
+
         if (!ranged && !myAttack)
         {
 
@@ -395,13 +474,13 @@ public class EnemyController : MonoBehaviour {
             if (!target)
             {
                 state = States.idle;
-                myAnimator.SetBool("Attack", false);
+                ChangeToAnimation("Idle");
             }
             // Otters too far away?
             else if (Vector2.Distance(transform.position, target.position) > attackRange)
             {
                 state = States.chase;
-                myAnimator.SetBool("Attack", false);
+                ChangeToAnimation("Walk");
                 
             }
 
@@ -411,12 +490,14 @@ public class EnemyController : MonoBehaviour {
             // No Otters?
             if (!target)
             {
-                state = States.idle;               
+                state = States.idle;    
+                ChangeToAnimation("Idle");           
             }
             // Otters too far away?
             else if (Vector2.Distance(transform.position, target.position) > attackRange)
             {
                 state = States.chase;
+                ChangeToAnimation("Walk");
             }
             // Otters too close?
             else if (Vector2.Distance(transform.position, target.position) < fleeRange)
@@ -521,6 +602,7 @@ public class EnemyController : MonoBehaviour {
         }
 
         // Destroy
+        Instantiate(loot, transform.position, transform.rotation);
         Destroy(gameObject);
 
     }
@@ -556,6 +638,7 @@ public class EnemyController : MonoBehaviour {
         if (stun <= 0)
         {
             state = States.idle;
+            ChangeToAnimation("Idle");
         }
 
         #endregion Triggers
@@ -565,6 +648,71 @@ public class EnemyController : MonoBehaviour {
         // Lower stun duration
         if (stun > 1) stun = 1;
         stun -= 1 * Time.deltaTime;
+
+        #endregion Behaviour
+
+    }
+
+    // State: Bigsy charge up
+    void ChargeUp()
+    {
+
+        #region Triggers
+        
+        // Start special attack when charge up is done
+        if (bigsy.chargeUpDurationNow >= bigsy.chargeUpDuration)
+        {
+            // bigsy.chargeUpDurationNow = 0;
+            state = States.specialAttack;
+            ChangeToAnimation("SpecialAttack");
+            return;
+        }
+
+        #endregion Triggers
+
+        #region Behaviour
+
+        // Log
+        Debug.Log("My state is now ChargeUp");
+
+        // Update charge up duration
+        bigsy.chargeUpDurationNow += Time.deltaTime;
+
+        // Safety during charge up
+        safetyDuration += 60;
+
+        #endregion Behaviour
+
+    }
+
+    // State: Bigsy special attack
+    void SpecialAttack()
+    {
+        #region Triggers
+
+        if (!myAttack && bigsy.specialCount <= 0)
+        {
+            state = States.idle;
+            ChangeToAnimation("Idle");
+        }
+
+        #endregion Triggers
+
+        #region Behaviour
+
+        // Log
+        Debug.Log("My state is now SpecialAttack");
+
+        // Special Attack
+        if (bigsy.specialCount >= 1)
+        {
+            bigsy.specialCount--;
+            myAttack = Instantiate(bigsy.specialAttack, feets.transform.position, transform.rotation);
+            myAttack.GetComponent<AttackController>().lifetime = bigsy.specialAttackDuration;
+            myAttack.GetComponent<AttackController>().myDamage = bigsy.specialAttackDamage;
+            myAttack.GetComponent<AttackController>().owner = gameObject;
+
+        }
 
         #endregion Behaviour
 
@@ -649,8 +797,24 @@ public class EnemyController : MonoBehaviour {
         myAnimator.SetBool("Attack", false);
         myAnimator.SetBool("Walk", false);
         myAnimator.SetBool("Dodge", false);
+        myAnimator.SetBool("SpecialAttack", false);
+        myAnimator.SetBool("ChargeUp", false);
+
 
         myAnimator.SetBool(newAnimation, true);
+
+    }
+
+    // Template
+    void Template()
+    {
+        #region Triggers
+
+        #endregion Triggers
+
+        #region Behaviour
+
+        #endregion Behaviour
 
     }
 

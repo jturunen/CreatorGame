@@ -43,6 +43,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1412021811161920
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4269025986988562}
+  m_Layer: 0
+  m_Name: Feets
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1602355075881812
 GameObject:
   m_ObjectHideFlags: 0
@@ -86,12 +101,13 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1602355075881812}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2, y: 2, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4446573616355608}
   - {fileID: 4180834269059610}
   - {fileID: 4909119717985572}
+  - {fileID: 4269025986988562}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -107,6 +123,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4169572810028980}
   m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4269025986988562
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1412021811161920}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4169572810028980}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4446573616355608
 Transform:
@@ -232,9 +261,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 789a2da105d30304b807cb34c4a0a094, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myName: 
+  bigsy:
+    specialCount: 1
+    chargeUpDuration: 1
+    specialAttackDuration: 1
+    specialAttackDamage: 100
+    specialAttack: {fileID: 1343720371958134, guid: c5bb915c75960354e972a3b5f0b01a6a,
+      type: 2}
+    chargeUpDurationNow: 0
+  myName: Bigsy
   moveSpeed: 2
   hitPoints: 6
+  hitPointsMax: 6
   safetyDuration: 0
   safetyDurationHotswap: 3
   attackCooldown: 0.4
@@ -246,11 +284,14 @@ MonoBehaviour:
   stun: 0
   accuracy: 0
   damage: 1
+  attackSpeed: 2.5
   gunSoundVolume: 0
   isControlled: 0
   ranged: 0
   friendlyFire: 0
-  attackPrefab: {fileID: 1635639314255340, guid: 2b714a7244ec7a34ba63055944253e5d,
+  attackPrefab: {fileID: 1948059460841358, guid: 0b61167ed8008b041a708df94610664e,
+    type: 2}
+  attackPrefabMobBoss: {fileID: 1948059460841358, guid: ac9e756e4e026234895663e07c721a99,
     type: 2}
   deathPrefab: {fileID: 1964543311967598, guid: cf44ab7e7ba4f284ebb8855bf7304590,
     type: 2}
@@ -259,6 +300,9 @@ MonoBehaviour:
   controlledPrefab: {fileID: 1394801445243444}
   bottlePrefab: {fileID: 0}
   weapon: {fileID: 0}
+  gunTip: {fileID: 0}
+  loot: {fileID: 1180141454267120, guid: c7da34242823daa48a5a4897aedb8bea, type: 2}
+  feets: {fileID: 1412021811161920}
   spawnChoise: 0
 --- !u!212 &212107548596932190
 SpriteRenderer:

@@ -78,6 +78,34 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1784005524622528
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4068262580440258}
+  m_Layer: 0
+  m_Name: Feets
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4068262580440258
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1784005524622528}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.13, y: -0.58, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4773306616110966}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4409864475385526
 Transform:
   m_ObjectHideFlags: 1
@@ -111,12 +139,13 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1637916601510576}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4409864475385526}
   - {fileID: 4665931132446820}
   - {fileID: 4981101038682984}
+  - {fileID: 4068262580440258}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -231,26 +260,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 789a2da105d30304b807cb34c4a0a094, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bigsy:
+    specialCount: 0
+    chargeUpDuration: 0
+    specialAttackDuration: 0
+    specialAttackDamage: 0
+    specialAttack: {fileID: 0}
+    chargeUpDurationNow: 0
   myName: 
   moveSpeed: 2
   hitPoints: 4
+  hitPointsMax: 0
   safetyDuration: 0
   safetyDurationHotswap: 3
-  attackCooldown: 0.2
+  attackCooldown: 0.1
   attackRange: 5
   fleeRange: 0
   damageTaken: 0
-  magazineSize: 10
+  magazineSize: 30
   reloadTime: 2.5
   stun: 0
   accuracy: 100
-  damage: 0.7
+  damage: 0.25
+  attackSpeed: 0
   gunSoundVolume: 0.3
   isControlled: 0
   ranged: 1
   friendlyFire: 0
   attackPrefab: {fileID: 1617936150534346, guid: 540ae985d838dc44ca8fc7d678acffcb,
     type: 2}
+  attackPrefabMobBoss: {fileID: 0}
   deathPrefab: {fileID: 1964543311967598, guid: cf44ab7e7ba4f284ebb8855bf7304590,
     type: 2}
   bloodPrefab: {fileID: 1734338061279592, guid: 5e4b5485ae685c94b915d6ae0bccd5b9,
@@ -259,6 +298,8 @@ MonoBehaviour:
   bottlePrefab: {fileID: 0}
   weapon: {fileID: 0}
   gunTip: {fileID: 1335749611059168}
+  loot: {fileID: 1180141454267120, guid: c7da34242823daa48a5a4897aedb8bea, type: 2}
+  feets: {fileID: 1784005524622528}
   spawnChoise: 0
 --- !u!212 &212126001029642508
 SpriteRenderer:

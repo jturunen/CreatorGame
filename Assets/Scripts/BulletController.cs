@@ -11,7 +11,9 @@ public class BulletController : MonoBehaviour
     public float accuracy; // Accuracy how well the bullet travels
     public bool bottle; // Is this Trashys special bottle attack?
     public bool rotate; // Should this rotate while moving?
+    public bool controlled; // Was this created by MobBoss?
     public GameObject loot; // What loot should this bullet drop when destroyed?
+    public GameObject owner; // Who created this object?
 
     //Vector2 point = new Vector2();
     private Vector2 point;
@@ -19,13 +21,25 @@ public class BulletController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        //point = target.position;
-        float testi = accuracy - 100;
-        testi = Random.Range(-testi, testi);
-        point = new Vector2(target.position.x + testi, target.position.y + testi);
-        // GameObject otteri = GameObject.FindGameObjectWithTag("Player");
-        // Calculate new direction by creating new vector between current position and target, normalize
-        direction = (target.position - transform.position).normalized; 
+        if (!controlled)
+        {
+            if (!bottle)
+            {
+                float realAccuracy = accuracy - 100;
+                realAccuracy = Random.Range(-realAccuracy, realAccuracy);
+                point = new Vector2(target.position.x + realAccuracy, target.position.y + realAccuracy);
+
+            }
+            
+            // Calculate new direction by creating new vector between current position and target, normalize
+            direction = (target.position - transform.position).normalized; 
+
+        }
+        else
+        {
+            direction = direction.normalized;
+        }
+
 
     }
 

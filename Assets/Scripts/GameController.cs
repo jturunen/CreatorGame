@@ -8,8 +8,12 @@ public class GameController : MonoBehaviour {
     public int minionIndex = 0; // Index for minion naming
     public GameObject winOtters;
     public GameObject winMobboss;
+    public bool ottersHaveWon; // Have Otters won yet?
+    public bool minionsHaveWon; // Have Minions won yet?
     public bool allMinionsSpawned;
     public bool testMode; // Test mode for spawning?
+    public bool winDance; // Should characters dance when winning?
+    public bool gamepadMobBoss; // Should Mob Boss use gamepad?
     public float timeBetweenRounds;
     public ParticleSystem bloodPrefab; // Blood visual effect
     public ParticleSystem bloodParticles; // Ilpo shit for blood, i dunno
@@ -73,11 +77,13 @@ public class GameController : MonoBehaviour {
         // If no Minions
         if (!myWin && allMinionsSpawned && !GameObject.FindWithTag("Minion"))
         {
+
             if (RoundController.roundIndex == 2)
             {
                 Debug.Log(RoundController.roundIndex);
                 ottersWin = true;
             }
+
             myWin = Instantiate(winOtters, new Vector3(0, 0, 0), Quaternion.identity);
             timeUntilNextRound = timeBetweenRounds;
             // Sound
@@ -87,7 +93,9 @@ public class GameController : MonoBehaviour {
         // If no Otters
         if (!myWin && !GameObject.FindWithTag("Player"))
         {
+
             mobBossWin = true;
+
             myWin = Instantiate(winMobboss, new Vector3(0, 0, 0), Quaternion.identity);
             timeUntilNextRound = timeBetweenRounds;
             // Sound
